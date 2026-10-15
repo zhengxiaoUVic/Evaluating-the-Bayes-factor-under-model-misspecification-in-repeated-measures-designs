@@ -1,0 +1,738 @@
+%% 
+%% Copyright 2007-2026 Elsevier Ltd
+%% 
+%% This file is part of the 'Elsarticle Bundle'.
+%% ---------------------------------------------
+%% 
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.3 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%% 
+%% Template article for Elsevier's document class `elsarticle'
+%% with harvard style bibliographic references
+
+\documentclass[preprint,12pt,authoryear]{elsarticle}
+\usepackage{amssymb,amsmath}
+\usepackage{booktabs,hyperref,multirow,enumitem} % additional packages
+\newtheorem{theorem}{Theorem}
+\DeclareMathOperator*{\plim}{plim}
+\journal{Journal of Mathematical Psychology}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Evaluating the Bayes factor under model misspecification in repeated-measures designs} %% Article title
+
+\author[label1]{Zhengxiao Wei\corref{cor1}\fnref{label3}} %% Author name
+\ead{zhengxiao@uvic.ca}
+\ead[url]{https://orcid.org/0000-0003-1866-2320}
+\fntext[label3]{Corresponding author}
+
+\author[label1]{Farouk S. Nathoo}
+\ead{nathoo@uvic.ca}
+\ead[url]{https://orcid.org/0000-0002-2569-3507}
+
+\author[label2]{Michael E. J. Masson}
+\ead{mmasson@uvic.ca}
+\ead[url]{https://orcid.org/0000-0002-5430-6078}
+
+%% Author affiliation
+\affiliation[label1]{organization={Department of Mathematics and Statistics},%Department and Organization
+            addressline={P.O. Box 1700 STN CSC}, 
+            city={Victoria},
+            postcode={V8W 2Y2}, 
+            state={British Columbia},
+            country={Canada}}
+
+\affiliation[label2]{organization={Department of Psychology},
+	addressline={P.O. Box 1700 STN CSC}, 
+	city={Victoria},
+	postcode={V8W 2Y2}, 
+	state={British Columbia},
+	country={Canada}}
+
+%% Abstract
+\begin{abstract}
+We evaluate the performance of the Bayes factor under model misspecification, with a focus on violations of compound symmetry and deviations from the normality assumption in repeated-measures designs. Simulation studies reveal that a paradox—discrepancies between inferences drawn from classical repeated-measures analysis of variance (rANOVA) and Bayesian analyses using Bayes factors with random intercept-only models—can arise under certain model misspecifications. We argue that the underlying misspecifications are best viewed as manifestations of covariance heterogeneity, rather than the existence of individual differences (random slopes) in the effects of independent variables. Our results demonstrate that models with both random intercepts and slopes effectively mitigate such discrepancies. We elucidate the rationale for adopting random-slope models as a means of accommodating a more complex marginal covariance structure than is assumed by a random intercept-only model. This study supports recent recommendations advocating the use of random intercept and slope models in analyzing repeated-measures data and explains the theoretical foundations of their effectiveness. We additionally substantiate that Bayes factors are generally robust to misspecifications in the distributions of random effects and residuals in linear mixed-effects models. We present a theorem demonstrating model selection consistency of the Bayes factor under model misspecification for the simple case of a one-sample $t$-test.
+\end{abstract}
+
+%%Research highlights
+\begin{highlights}
+\item We identify a paradox with $F$-tests and Bayes factors in repeated-measures designs.
+\item We show why random-slope models mitigate these inferential discrepancies.
+\item We identify conditions under which the Bayes factor is robust to misspecification.
+\item We prove model selection consistency of the Bayes factor in one-sample $t$-tests.
+\end{highlights}
+
+%% Keywords
+\begin{keyword}
+Bayes factor \sep Random slope \sep Linear mixed-effects model \sep Model misspecification \sep Robustness
+\end{keyword}
+
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Use \section commands to start a section
+\section{Introduction}
+\label{sec1}
+%% Labels are used to cross-reference an item using \ref command.
+
+Parametric statistical models are based on distributional assumptions about the data-generating process. In practice, real-world data often deviate from standard assumptions. Such model misspecification can undermine the validity of statistical inference. On the other hand, inference can sometimes be robust to certain forms of model misspecification, making it important to understand the practical consequences for statistical analysis. The theoretical properties of the maximum likelihood estimator under model misspecification have been investigated by \citep{white_maximum_1982}. This article examines the impact of model misspecification on hypothesis testing with the Bayes factor. Although this issue is broadly important, we specifically focus on analyzing repeated-measures designs using linear mixed-effects models. We consider how violations of assumed correlation structures or distributional assumptions can impact the Bayes factor. A notable example occurs when a frequentist analysis detects a statistically significant effect, whereas the Bayes factor supports the null hypothesis. We discuss how such contradictory results can stem from model misspecification and propose solutions tailored to repeated-measures designs. By systematically exploring these issues, we aim to deepen understanding of the robustness and limitations of Bayes factors under realistic deviations from model assumptions, offering insights into their performance in practical applications.
+
+In the context of repeated-measures designs, standard analytic methods assume a common variance across conditions and equal correlations among measurements, i.e., compound symmetry. The intraclass correlation coefficient, or adjusted repeatability, indicates how strongly units within the same cluster resemble each other. However, the empirical marginal variance-covariance structure is often more complex and may deviate from compound symmetry, as indicated in Eq.~(\ref{eq:1}). To illustrate, heterogenous compound symmetry retains constant pairwise correlations while allowing variances to differ, whereas a homogeneous unstructured covariance permits pairwise correlations to vary while maintaining a common variance.
+\begin{equation} \label{eq:1}
+	\begin{pmatrix}
+		\sigma_1^2 & \rho_{12}\sigma_1\sigma_2 & \dotsb & \rho_{1q}\sigma_1\sigma_q \\
+		\rho_{12}\sigma_1\sigma_2 & \sigma_2^2 & \dotsb &  \rho_{2q}\sigma_2\sigma_q \\
+		\vdots & \vdots & \ddots & \vdots \\
+		\rho_{1q}\sigma_1\sigma_q &  \rho_{2q}\sigma_2\sigma_q & \dotsb & \sigma_q^2
+	\end{pmatrix}
+\end{equation}
+Consider a clinical trial with a within-participant factor consisting of three conditions: pre-treatment, post-treatment, and follow-up. Responses at the pre-treatment stage may be relatively uniform, reflecting similar baseline scores across participants. However, variability commonly increases at the post-treatment stage, as some individuals show substantial improvements while others exhibit minimal or no response to the treatment. By the follow-up stage, such differences can become even more pronounced, as additional factors and continued treatment effects further amplify variability. Correlations between any two conditions tend to be stronger when those conditions are measured closer in time, reflecting shared underlying influences. In contrast, conditions measured further apart often exhibit weaker correlations.
+
+Researchers frequently apply mixed-effects models to analyze repeated-measures designs. The fixed effects—defined at the higher level—are assumed constant across lower-level units, whereas random effects capture variability between those units \citep{dong_banova_2017,gelman_analysis_2005,verissimo_when_2023}. \textit{Random intercepts} represent participant-specific deviations from the fixed intercept, whereas \textit{random slopes} allow the impact of an independent variable to vary across participants, capturing \textit{individual differences} in response to that independent variable. Although mixed-effects models are widely used with Bayes factors for hypothesis testing, this sometimes occurs without close scrutiny of the underlying model assumptions. The consequences of model misspecification can range from biased estimates and inflated variances to increased rates of false positives or reduced statistical power \citep{golden_making_1995,golden_statistical_2000,gustafson_measuring_2001,iachine_robust_2010,toyama_biases_2019}. For example, omitting random slopes can inflate type I error rates, while erroneously including them can inflate type II error rates \citep{lebeau_model_2018,oberauer_importance_2022,van_doorn_bayes_2023}. Given these potential pitfalls, it is essential to consider how model misspecifications might affect Bayes factors in the analysis of repeated-measures designs. We focus on realistic types of model violation:
+\begin{enumerate}
+	\item Violations of compound symmetry in the within-participant covariance structure, and
+	\item Violations of the normality assumption for residuals and/or random effects.
+\end{enumerate}
+
+\citet[p.~80]{bub_motor_2021} highlighted a paradox in two-way repeated-measures designs whereby violations of compound symmetry—indicated by a significantly larger mean-squared error (MSE) term for one main effect ($A$) compared to another ($B$)—do not undermine $p$-value significance tests for effect $B$ in a frequentist repeated-measures analysis of variance (rANOVA). However, the same violations often give rise to a Bayes factor favoring the null hypothesis, when using random intercept-only (RIO) Bayesian models via the \textit{anovaBF} function in the `\textit{BayesFactor}' package \citep[version 0.9.12-4.7 as of this writing;][]{morey_bayesfactor_2024}.\footnote[1]{The paradox also applies to multiway repeated-measures designs. Without loss of generality, we focus on two-way repeated-measures designs.} To further investigate this paradox, whereby model misspecification relating to covariance structure leads to a stark contradiction between $p$-value significance tests and Bayes factors, one can conduct separate Bayesian tests for the factor $B$ of interest under each level of factor $A$. For tests conducted in this way, the Bayes factors consistently reveal that the effect of $B$ is pronounced at each level of $A$, indicating that the discrepancy does not simply stem from differences between liberal and conservative testing approaches \citep{ly_harold_2016,nathoo_bayesian_2016,raftery_bayesian_1995,wei_investigating_2023,wetzels_statistical_2011}.
+
+A similar phenomenon was reported by \citet{van_den_bergh_bayesian_2023}, who proposed a revised Bayesian model specification. In a real data set from a Stroop experiment with a $2\times3$ repeated-measures design, the Bayesian RIO model—which assumes no individual differences in the effects—led to conclusions that conflicted with a frequentist rANOVA. Allowing random slopes in the Bayesian model corrected these discrepancies, bringing the Bayesian results more closely in line with those of the frequentist approach. This `maximal set of random effects' (MRE) strategy is now the default specification for Bayesian rANOVA in JASP \citep[version 0.16.3 and later;][]{jasp_team_jasp_2025} and can also be adapted for use in the \textit{lmBF} function. Our simulations confirm that the MRE model mitigates the paradox and improves the consistency of inference. The improvement arises from differences in the marginal covariance structures implied by each model: the RIO model enforces compound symmetry, whereas the MRE model accommodates a more flexible marginal covariance structure, allowing for departures from this assumption. Our study also supplements a case that was overlooked by \citet{oberauer_importance_2022} and \citet{van_den_bergh_bayesian_2023}, in which compound symmetry can be maintained despite the presence of individual differences in the effects.
+
+Numerous reviews suggest that, although maximum likelihood estimates for fixed effects in linear mixed-effects models remain unbiased under violations of normality for random effects and residuals, their precision can be compromised \citep[e.g.,][]{arnau_effect_2013,jacqmin-gadda_robustness_2007,lebeau_model_2018,maas_robustness_2004,mcculloch_misspecifying_2011,schielzeth_robustness_2020,verbeke_effect_1997}. This reinforces a broader point made by \citet{bradley_robustness_1978}, who noted that general claims about the robustness of classical $t$- and $F$-tests to violations of normality and homogeneity of variance are often vague and situational. However, these studies generally do not address how such model violations might affect the Bayes factor. To address this question, we conducted simulation studies using MRE to assess robustness quantitatively, where robustness refers to approximate invariance of the sampling distribution of the Bayes factor to departures from the assumed normal distributions of random effects and residuals. Our results indicate that, under moderate non-normality, the Bayes factor is robust in this sense. Nonetheless, we also identify conditions under which severe departures from normality can distort the sampling distributions of Bayes factors. With increasing sample size, these distortions may impact the rate of convergence of the Bayes factor, even though it still remains model-selection consistent.
+
+The rest of the article proceeds as follows. First, we outline the constraints and assumptions underlying the standard analysis of two-way repeated-measures designs in the frequentist and Bayesian frameworks in Section \ref{sec2}. We then demonstrate that the frequentist rANOVA assumes sphericity, which permits a more general marginal covariance structure, while the RIO model imposes compound symmetry. Under realistic data with violations of compound symmetry in Section \ref{sec3}, we show how the RIO Bayes factor can paradoxically support the null hypothesis even when the rANOVA $p$-value rejects it. Next, we highlight how using the MRE model eliminates this contradiction because it accommodates a more flexible marginal covariance structure. We stress here and throughout that the paradox arises from heterogeneous covariances, not merely from the existence of individual differences in the effects. Three Monte Carlo simulation studies follow in Section \ref{sec4}. They examine: (1) under covariance heterogeneity, whether the MRE Bayes factor more often yields moderate evidence for an effect than the RIO Bayes factor; (2) how sensitive the sampling distribution of the MRE Bayes factor is to skewed random effects and residuals; and (3) whether the Bayes-factor distribution remains approximately unchanged under departures from normality, and under what conditions this invariance fails. Here, robustness refers specifically to this approximate invariance of the Bayes-factor's sampling distribution to violations of normality. Thus, a failure to establish robustness means that non-normality produces a material change in the distributional behavior of the Bayes factor. When robustness cannot be established, we can still obtain a weaker property: model selection consistency, in the sense that the Bayes factor can asymptotically discriminate between the null and alternative hypotheses under non-normality. The latter observation is formalized in Theorem 1, which provides conditions for model selection consistency of Bayesian $t$-tests. In Section \ref{sec5}, we conclude by offering recommendations for applied researchers, outlining limitations, and suggesting directions for future work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Two-way rANOVA}
+\label{sec2}
+
+We consider a two-way factorial repeated-measures design that enables the examination of the main effect for each factor and their interaction. A full model for a two-way repeated-measures design can be conceptualized through a mixed-effects model, where the two repeated-measures factors are treated as fixed effects, and participants (or items) are random effects. The statistical model for the response $y_{ijkr}$ of the $r$-th trial of participant $k$ under the $(i,j)$-th condition is given in Eq.~(\ref{eq:2}). In this model, $\mu$ represents the grand mean; $\alpha_i$ denotes the main effect of factor $A$ ($i=1,\dotsb,a$); $\beta_j$ denotes the main effect of factor $B$ ($j=1,\dotsb,b$); and $(\alpha\beta)_{ij}$ represents the interaction effect between factors $A$ and $B$. Participant-specific random effects are denoted by $s_k$ for $k=1,\dotsb,n$, and represent random intercepts corresponding to individual differences among the mean score (computed across all conditions). The interaction effect between participants and factor $A$ is represented by $(\alpha s)_{ik}$, while $(\beta s)_{jk}$ captures the interactions between participants and factor $B$. The random effects $(\alpha s)_{ik}$ or $(\beta s)_{jk}$ are called random slopes, representing individual differences in the sign and size of a factor's effect. The highest-order within-participant interaction, which is also a random slope, is given by $(\alpha\beta s)_{ijk}$. The residual terms are denoted by $\epsilon_{ijkr}$ for $r=1,\dotsb,R_{ijk}$. In a balanced design, each participant undergoes the same number of trials, $R$, under each condition.
+\begin{equation} \label{eq:2}
+	y_{ijkr}=\mu+\alpha_i+\beta_j+(\alpha\beta)_{ij}+s_k+(\alpha s)_{ik}+(\beta s)_{jk}+(\alpha\beta s)_{ijk}+\epsilon_{ijkr}
+\end{equation}
+with $\textstyle\sum_{i=1}^a \alpha_i=0$, $\textstyle\sum_{j=1}^b \beta_j=0$, and $\textstyle\sum_{i=1}^a (\alpha\beta)_{ij}=\sum_{j=1}^b (\alpha\beta)_{ij}=0$. The random effects and residual terms are assumed to be mutually uncorrelated and are assumed normally distributed with constant variances, i.e.,
+\begin{align*}
+	&s_k\overset{\mathrm{i.i.d.}}{\sim}\mathcal{N}(0,\ \!\sigma_s^2), \\
+	&(\alpha s)_{ik}\sim\mathcal{N}(0,\ \!\sigma_{\alpha s}^2)\text{ with }\textstyle\sum_{i=1}^a(\alpha s)_{ik}=0, \\
+	&(\beta s)_{jk}\sim\mathcal{N}(0,\ \!\sigma_{\beta s}^2)\text{ with }\textstyle\sum_{j=1}^b(\beta s)_{jk}=0, \\
+	&(\alpha\beta s)_{ijk}\sim\mathcal{N}(0,\ \!\sigma_{\alpha\beta s}^2)\text{ with }\textstyle\sum_{i=1}^a (\alpha\beta s)_{ijk}=\sum_{j=1}^b (\alpha\beta s)_{ijk}=0, \\
+	&\text{and }\epsilon_{ijkr}\overset{\mathrm{i.i.d.}}{\sim}\mathcal{N}(0,\ \!\sigma_{\epsilon}^2).
+\end{align*}
+
+Equation (\ref{eq:2}) takes the form of a restricted model in which the random slopes are assumed to sum to zero over the fixed indices. Imposing sum-to-zero constraints on both fixed effects and random slopes ensures model identifiability, maintains consistency in interpreting effects across hierarchical levels, and avoids conflating variance estimates between fixed and random components \citetext{%
+	\citealp[p.~153]{burdick_confidence_1992}; %
+	\citealp{cornfield_average_1956}; %
+	\citealp[p.~143]{meier_anova_2022}; %
+	\citealp[p.~165]{myers_fundamentals_1979}; %
+	\citealp[p.~403]{searle_linear_1997}; %
+	but see \citealp{bates_fitting_2015}}.
+In Section \ref{sec2.2}, a projection parameterization that aligns with the sum-to-zero constraint is proposed.
+	
+The observations, collected over the four conditions for the same participant in a $2\times2$ repeated-measures design, are represented by the following equations.
+\begin{equation*}
+	\begin{cases}
+		\ y_{11kr}=\mu-\alpha-\beta+(\alpha\beta)+s_k-(\alpha s)_k-(\beta s)_k+(\alpha\beta s)_k+\epsilon_{11kr} \\
+		\ y_{21kr}=\mu+\alpha-\beta-(\alpha\beta)+s_k+(\alpha s)_k-(\beta s)_k-(\alpha\beta s)_k+\epsilon_{21kr} \\
+		\ y_{12kr}=\mu-\alpha+\beta-(\alpha\beta)+s_k-(\alpha s)_k+(\beta s)_k-(\alpha\beta s)_k+\epsilon_{12kr} \\
+		\ y_{22kr}=\mu+\alpha+\beta+(\alpha\beta)+s_k+(\alpha s)_k+(\beta s)_k+(\alpha\beta s)_k+\epsilon_{22kr}
+	\end{cases}
+\end{equation*}
+Their marginal variance-covariance matrix, presented in Eq.~(\ref{eq:3}), underlines the inherent correlations within participants, especially any negative correlations when the random-slope variances are large enough. This theoretical matrix is partially identified by five variance components, which outnumber the unique set consisting of one variance and three covariance terms \citep{gustafson_bayesian_2015}. For example,
+\begin{equation*}
+	(\sigma_{\alpha s}^2,\ \!\sigma_{\beta s}^2,\ \!\sigma_{\alpha\beta s}^2,\ \!\sigma_s^2,\ \!\sigma_\epsilon^2)=(0,1,2,3,4)\text{ or }(0.5, 1.5, 2.5, 3.5, 2)
+\end{equation*}
+or infinitely many solutions can contribute to the same marginal variance-covariance matrix in Eq.~(\ref{eq:3}). The matrix becomes fully identified if the highest-order within-participant interaction is either combined with residuals or omitted (discussed further in Section \ref{sec2.2}). All off-diagonal terms are equal if and only if the variances of all three random slopes are equal. If $\sigma_{\alpha s}^2=\sigma_{\beta s}^2=\sigma_{\alpha\beta s}^2=\sigma^2$, and we reparametrize as $\lambda_1=\sigma_\epsilon^2+4\sigma^2$ and $\lambda_2=\sigma_s^2-\sigma^2$, then Eq.~(\ref{eq:3}) reduces to the form of $\boldsymbol{\Sigma}=\lambda_1\mathbf{I}+\lambda_2\mathbf{J}$, where $\mathbf{I}$ and $\mathbf{J}$ are the identity and all-ones square matrices, respectively. \ref{app1} presents the general form of the marginal variance-covariance matrix and discusses its algebraic properties in relation to the sphericity assumption and the projection parameterization for a two-way repeated-measures design.
+\begin{equation} \label{eq:3}
+	\boldsymbol{\Sigma}=
+	\begin{pmatrix}
+	v_1 & v_2 & v_3 & v_4 \\
+	v_2 & v_1 & v_4 & v_3 \\
+	v_3 & v_4 & v_1 & v_2 \\
+	v_4 & v_3 & v_2 & v_1
+	\end{pmatrix}, \text{ where }
+	\begin{cases}
+	\ v_1=\sigma_s^2+\sigma_{\alpha s}^2+\sigma_{\beta s}^2+\sigma_{\alpha\beta s}^2+\sigma_\epsilon^2 \\
+	\ v_2=\sigma_s^2-\sigma_{\alpha s}^2+\sigma_{\beta s}^2-\sigma_{\alpha\beta s}^2 \\
+	\ v_3=\sigma_s^2+\sigma_{\alpha s}^2-\sigma_{\beta s}^2-\sigma_{\alpha\beta s}^2 \\
+	\ v_4=\sigma_s^2-\sigma_{\alpha s}^2-\sigma_{\beta s}^2+\sigma_{\alpha\beta s}^2
+	\end{cases}
+\end{equation}
+
+%====================================================
+
+\subsection{Frequentist framework}
+\label{sec2.1}
+
+rANOVA is extensively applied to analyze repeated-measures data by partitioning total variance into within-participant and between-participants variability \citetext{%
+	\citealp[chap.~14]{howell_statistical_2012}; %
+	\citealp[chap.~10]{janczyk_understanding_2023}; %
+	\citealp[chap.~12]{maxwell_designing_2017}; %
+	\citealp[chap.~5]{verma_repeated_2015}}.
+Unlike linear mixed-effects regression models, rANOVA does not account for trial-level variability, but rather aggregates trials by averaging responses within each condition for each participant. rANOVA is a special case of a linear mixed model when the design is balanced and the mixed model uses the same error-strata structure with homoscedastic errors in Eq.~(\ref{eq:2}) \citep{pinheiro_mixed-effects_2000}. The null hypothesis for testing the main effect of factor $B$ prescribes $\mathcal{H}_0: \beta_j=0$ for all $j$, with the alternative hypothesis being $\mathcal{H}_1: \beta_j\neq0$ for some $j$. This is an \textit{on-average} null: the mean effect across participants is zero, but that average could arise because large positive and large negative individual effects (i.e., genuine heterogeneity of effects) cancel out. By contrast, a \textit{universally absent} effect indicates the effect is essentially zero for every participant \citep{miller_implications_2018}. We will revisit this distinction, and its connection to the principle of marginality and psychological interpretation, in Section \ref{sec2.2}. A random-slope model can explicitly estimate and test variance in participant-specific effects, whereas classical rANOVA primarily tests average effects \citep{haaf_developing_2017}.
+
+Table \ref{tbl1} presents the expected mean squares for each effect and error stratum used in $F$-tests for two-way rANOVA \citetext{%
+	\citealp[p.~189]{myers_fundamentals_1979}; %
+	see also \citealp[p.~37]{girden_anova_1992}; %
+	\citealp[p.~672]{maxwell_designing_2017}}.
+For fixed effects, the expected mean squares include contributions from the residual term, the quadratic form of the fixed effects, and the associated random effects. For random effects, they consist solely of the variance components of the residual term and the random effects. Two-way rANOVA does not pool all residual variation into a single error term, as is done in between-participants ANOVA. Instead, $F$-ratios are constructed by dividing the mean squares of fixed effects by the appropriate error terms, which are determined by interactions between participants and the fixed factors. The presence or absence of random slopes for factor $A$ does not affect the form of the expected mean square for testing factor $B$ in Table \ref{tbl1}, as the variance component of the former ($\sigma_{\alpha s}^2$) does not appear in the latter (and vice versa). However, it may indirectly influence the estimation of variance components (${\hat{\sigma}}_\epsilon^2$ and ${\hat{\sigma}}_{\beta s}^2$) and the power of the test for factor $B$ by altering the model's overall fit. Suppose participants exhibit varying responses to factor $A$. If the model neglects the random slope for $A$, then the error term will absorb this variability. As a result, the inflated error variance lowers the $F$-ratio and statistical power for factor $B$.\footnote[2]{An inequality $(u+z)/(v+z)<u/v$ holds when $u>v>0$ and $z>0$.}
+
+\begin{table}[t]
+	\centering
+	\begin{tabular}{@{}ll@{}}
+		\toprule
+		Source           & Expected mean square                                                                                    \\ \midrule
+		Factor $A$       & $\sigma_\epsilon^2+nb\sum_{i=1}^a\alpha_i^2/(a-1)+b\sigma_{\alpha s}^2$                                 \\
+		Error $A$        & $\sigma_\epsilon^2+b\sigma_{\alpha s}^2$                                                                \\
+		Factor $B$       & $\sigma_\epsilon^2+na\sum_{j=1}^b\beta_j^2/(b-1)+a\sigma_{\beta s}^2$                                   \\
+		Error $B$        & $\sigma_\epsilon^2+a\sigma_{\beta s}^2$                                                                 \\
+		Interaction $AB$ & $\sigma_\epsilon^2+\sigma_{\alpha\beta s}^2+n\sum_{i=1}^a\sum_{j=1}^b(\alpha\beta)_{ij}^2/((a-1)(b-1))$ \\
+		Error $AB$       & $\sigma_\epsilon^2+\sigma_{\alpha\beta s}^2$                                                            \\
+		Participant $S$  & $\sigma_\epsilon^2+ab\sigma_s^2$                                                                        \\ \bottomrule
+	\end{tabular}
+\caption{Expected mean squares for two-way repeated-measures designs. The two-way repeated-measures design contains $a$ levels of factor $A$, $b$ levels of factor $B$, and $n$ participants. Factors $A$ and $B$ are assumed to be fixed.}\label{tbl1}
+\end{table}
+
+The validity of the rANOVA technique relies on the assumption of \textit{sphericity} (also known as \textit{circularity}), which requires that the variances of the differences between any pair of within-participant conditions be equal. Each mean square ratio follows an exact $F$-distribution if and only if the covariance matrix of the repeated measures satisfies the sphericity assumption \citep{huynh_conditions_1970,rouanet_comparison_1970}. Alternatively, sphericity can be articulated in terms of equal variances and zero covariances of orthogonal contrasts, which is more straightforward, particularly for interaction effects in multiway repeated-measures designs \citep{lane_assumption_2016,langenberg_understanding_2023}. If sphericity is violated, variance partitioning may be distorted, leading to an inflated $F$-ratio and necessitating corrections to the degrees of freedom \citep{greenhouse_methods_1959,huynh_estimation_1976,mauchly_significance_1940}. A sufficient but not necessary condition underlying the application of rANOVA is the \textit{compound symmetry} assumption, which states that all conditions have equal variance and that all pairs of conditions have equal covariance. Compound symmetry implies sphericity, but not vice versa. Thus, a covariance matrix satisfying sphericity has a more general structure than a compound symmetry structure \citep[p.~232]{cousineau_correlation-adjusted_2019}.\footnote[3]{Adding to the potential confusion, a \textit{spherical} matrix is semantically equivalent to a compound symmetry matrix.} One can observe violations of compound symmetry (e.g., heterogeneous variances and correlations among measurement pairs) while still preserving sphericity (i.e., homogeneous variance of difference scores, $\mathrm{Var}(y_i-y_j)=\mathrm{Var}(y_i)+\mathrm{Var}(y_j)-2\mathrm{Cov}(y_i,y_j)=3$ for $i\neq j$) in the following example matrix for Eq.~(\ref{eq:1}) in a one-way repeated-measures design with three conditions \citep{huynh_conditions_1970}.
+\begin{equation*}
+	\hat{\boldsymbol{\Sigma}}_3=\begin{pmatrix}1 & 0.5 & 1.5 \\ 0.5 & 3 & 2.5 \\ 1.5 & 2.5 & 5 \end{pmatrix}
+\end{equation*}
+In this case, classical rANOVA operates as intended, and the focus shifts to evaluating whether methods that postulate compound symmetry may produce incorrect inferences due to model misspecification.
+
+Common concerns about sphericity become irrelevant when a within-participant factor has only two levels. In fact, the sphericity assumption is automatically satisfied for any factor with exactly two levels and for any interaction between such two factors, as there is only one pairwise difference—leaving no variance across multiple difference scores to compare. Compound symmetry is not required for the validity of the $F$-tests in rANOVA, as long as the weaker condition of sphericity holds. The marginal variance-covariance matrix in Eq.~(\ref{eq:3}) naturally violates compound symmetry due to unequal covariances, which occurs if any two random-slope variances are unequal ($\sigma_{\alpha s}^2\neq\sigma_{\beta s}^2$ or $\sigma_{\alpha s}^2\neq\sigma_{\alpha\beta s}^2$ or $\sigma_{\beta s}^2\neq\sigma_{\alpha\beta s}^2$) in a $2\times2$ repeated-measures design. Compound symmetry is attained only when all random-slope variances are equal ($\sigma_{\alpha s}^2=\sigma_{\beta s}^2=\sigma_{\alpha\beta s}^2$); a special case occurs when they are all zero.
+
+%====================================================
+
+\subsection{Bayesian framework}
+\label{sec2.2}
+
+Although frequentist procedures offer well-defined long-run error control, $p$-values—the probability of obtaining data as extreme or more extreme than the observed data, given that the null hypothesis is true—do not directly quantify how much the data favor one hypothesis over another. In contrast, Bayesian hypothesis testing evaluates graded evidence for hypotheses as an alternative to $p$-values. A Bayes factor represents the ratio of the marginal likelihoods of two competing hypotheses, typically comparing models that exclude versus include a particular effect as in Eq.~(\ref{eq:4}) \citep{kass_bayes_1995}. We consider $\mathcal{H}_0: \boldsymbol{\theta}=\boldsymbol{\theta}_0$ versus $\mathcal{H}_1: \boldsymbol{\theta}\neq\boldsymbol{\theta}_0$, where $\boldsymbol{\psi}$ denotes nuisance parameters shared by both models. The Bayes factor quantifies the extent to which data update the prior model odds to the posterior model odds. This framework offers intuitive interpretations of data, such as providing evidence in favor of the null hypothesis—a capability rarely afforded by traditional frequentist methods. Bayesian testing ensures that evidence from the data is effectively combined with prior information about the relative plausibility of the competing models and their parameters.
+
+\begin{equation} \label{eq:4}
+	\mathit{BF}_{01}=\frac{p(\mathbf{y}\mid\mathcal{H}_0)}{p(\mathbf{y}\mid\mathcal{H}_1)}=\frac{\int p(\mathbf{y}\mid\boldsymbol{\theta}=\boldsymbol{\theta}_0,\ \!\boldsymbol{\psi})\cdot\pi_0(\boldsymbol{\psi})\ \!\mathrm{d}\boldsymbol{\psi}}{\iint p(\mathbf{y}\mid\boldsymbol{\theta},\ \!\boldsymbol{\psi})\cdot\pi_1(\boldsymbol{\theta},\ \!\boldsymbol{\psi})\ \!\mathrm{d}\boldsymbol{\theta}\mathrm{d}\boldsymbol{\psi}}
+\end{equation}
+
+The model specification for a repeated-measures design in the JASP application and the `\textit{BayesFactor}' \texttt{R} package involves several procedures, including data aggregation, effect size re-parameterization, Jeffreys–Zellner–Siow (JZS) prior structure, and model selection strategies \citetext{%
+	\citealp{van_doorn_bayes_2023,van_doorn_bayes_2023-1,van_doorn_bayes_2023-2}; %
+	see also \citealp{heathcote_limits_2023,heck_benefits_2023,jeffreys_invariant_1946,liang_mixtures_2008,linde_bayes_2023,rouder_principles_2023,singmann_statistics_2023,vasishth_sample_2023,verissimo_when_2023,zellner_posterior_1980}}.
+	
+The number of trials, $R$, refers to the balanced count of observations within each condition of the experimental design in Eq.~(\ref{eq:2}). Data are considered aggregated when $R=1$ (i.e., only one observation per condition) or when the average response for each condition is calculated, as is done in frequentist rANOVA. \citet[p.~4]{van_doorn_bayes_2023} argued that aggregation significantly reduces the influence of highest-order within-participant interactions when inferring fixed effects. This process, in turn, mitigates the inflation of type I and type II error rates typically associated with neglecting these interactions. The aggregation process confounds the interaction between the fixed and random effects, $(\alpha\beta s)_{ijk}$, with the residual, $\epsilon_{ijk}$, in Eq.~(\ref{eq:2}) \citetext{%
+	\citealp[p.~488]{loftus_using_1994}; %
+	\citealp[p.~69]{singmann_statistics_2023}; %
+	\citealp[p.~7]{van_den_bergh_bayesian_2023}; %
+	\citealp[p.~7]{van_doorn_bayes_2023}; %
+	see also \citealp[p.~1785]{allen_bayesian_2023}; %
+	\citealp[p.~12]{shang_spatially_2022}}.
+Consequently, highest-order within-participant interactions are only estimable when $R>1$ with unaggregated data; otherwise, they cannot be separately identified. Within Bayesian modeling, it is technically possible to include highest-order within-participant interactions even when using aggregated data. However, in such cases, the likelihood provides no information to update the prior, meaning that the estimates are entirely prior-driven \citep[p.~5]{van_doorn_bayes_2023}. To ensure proper model specification, we exclude highest-order within-participant interactions when analyzing aggregated data but include them when working with unaggregated data (except for Fig.~2[d]).
+
+All fixed and random effects in Eq.~(\ref{eq:2}) would need to be standardized relative to the residual standard deviation (e.g., $\delta_j=\beta_j/\sigma_\epsilon$ for the standardized effect of factor $B$), making them invariant to scaling \citetext{%
+	\citealp{jeffreys_theory_1961}; %
+	\citealp[p.~359]{rouder_default_2012}; %
+	but see debate in \citealp{van_doorn_bayes_2023-2}}.
+In other words, using different units of measurement for the same data still generates the same Bayes factor.
+
+\begin{equation} \label{eq:5}
+	\delta_j^\star\mid g\overset{\mathrm{i.i.d.}}{\sim}\mathcal{N}(0,\ \!g)
+\end{equation}
+\begin{equation} \label{eq:6}
+	(\delta_1^\star,\dotsb,\delta_{b-1}^\star)^\top=\mathbf{Q}^\top(\delta_1,\dotsb,\delta_{b})^\top
+\end{equation}
+\begin{equation} \label{eq:7}
+	\mathbf{I}_b-b^{-1}\mathbf{J}_b=\mathbf{Q}\ \!\mathbf{Q}^\top
+\end{equation}
+\begin{equation} \label{eq:8}
+	g\sim\operatorname{Scale-inv-}\chi^2(1,\ \!h^2)
+\end{equation}
+
+A Jeffreys prior on $\mu$ and $\sigma_\epsilon$ is given by $\pi(\mu,\sigma_\epsilon)\propto1/\sigma_\epsilon$. The JZS hierarchical specification is then constructed on the \textit{projected} standardized effects $\delta_j^\star$ through Eqs.~(\ref{eq:5})–(\ref{eq:8}). When modeling fixed effects instead of random effects, \citet{rouder_default_2012} projected the $b$ levels of factor $B$ onto a $(b-1)$-dimensional subspace, assuming that the \textit{marginal prior} on the $b$ standardized effects, constrained to sum to zero, is a multivariate Cauchy distribution centered at 0 with a scale matrix $h^2(\mathbf{I}_b-b^{-1}\mathbf{J}_b)$.\footnote[4]{A multivariate Cauchy distribution is equivalent to a multivariate $t$-distribution with one degree of freedom. Although the multivariate Cauchy distribution has an undefined mean vector and covariance matrix, it has a scale matrix that describes the spread and dependence structure.} Specifically, $\mathbf{Q}$ is a $b\times(b-1)$ projection matrix consisting of the $b-1$ eigenvectors of unit length, corresponding to the nonzero eigenvalues of the idempotent matrix on the left-hand side of Eq.~(\ref{eq:7}). \citet{rouder_default_2012} proposed the scaled inverse-chi-square hyperprior with one degree of freedom in Eq.~(\ref{eq:8}) for the variance hyperparameter, $g$, of the shrinkage prior in Eq.~(\ref{eq:5}).\footnote[5]{A scaled inverse-chi-square distribution with one degree of freedom and scale parameter $h^2$ is equivalent to an inverse-gamma distribution with shape parameter 0.5 and scale parameter $h^2/2$. These distributions are widely used as conjugate priors for the variance parameter of a normal distribution.} The marginal prior on the $n$ standardized random intercepts does not demand Eqs.~(\ref{eq:6}) and (\ref{eq:7}) and instead follows a multivariate Cauchy distribution with a scale matrix $h^2\mathbf{I}_n$. The specification naturally extends to fixed interactions or random slopes by introducing the Kronecker product of their projection matrices (e.g., $\mathbf{Q}_{\alpha\beta}=\mathbf{Q}_\beta\otimes\mathbf{Q}_\alpha$ and $\mathbf{Q}_{\beta s}=\mathbf{I}_n\otimes\mathbf{Q}_\beta$). The default values are $h=0.5$ for fixed effects and $h=1$ for random effects in Bayesian rANOVA.\footnote[6]{The scale argument is classified as medium, wide, and ultrawide for $\{\sqrt2/4,\ \!1/2,\ \!\sqrt2/2\}$ in linear regression, $h\in\{1/2,\ \!\sqrt2/2,\ \!1\}$ in ANOVA, and $\gamma\in\{\sqrt2/2,\ \!1,\ \!\sqrt2\}$ in $t$-tests, respectively, as implemented since version 0.9.6 of the `\textit{BayesFactor}' package and the initial release of JASP.} \citet[p.~310]{rouder_bayesian_2017} recommend $h\in(0.2,\ \!1)$. Researchers should adjust the scale value based on the context and conduct a sensitivity analysis to assess the robustness of their conclusions  \citetext{%
+	e.g., \citealp[p.~5]{chen_powerful_2019}; %
+	\citealp[p.~625]{faghihi_spatial_2019}; %
+	\citealp[p.~242]{faulkenberry_bayesian_2020}; %
+	\citealp[p.~1581]{grange_effect_2017}}.
+
+The current \textit{anovaBF} function from the `\textit{BayesFactor}' package implements the RIO model specification for two-way repeated-measures designs. This approach excludes random slopes $(\alpha s)_{ik}$ and $(\beta s)_{jk}$ and highest-order within-participant interactions $(\alpha\beta s)_{ijk}$ from Eq.~(\ref{eq:2}). Without these random-slope components in Eq.~(\ref{eq:3}), the RIO model implies compound symmetry for the marginal covariance matrix. Table \ref{tbl2} presents the code for the null and alternative RIO models when testing interaction and main effects. The corresponding code syntax is:
+\begin{center}
+	\texttt{anovaBF(Y\textasciitilde A*B+S, whichRandom="S", whichModels="withmain", ...)}.
+\end{center}
+The coherence condition, $\mathit{BF}_{12}=\mathit{BF}_{10}\ \!/\ \!\mathit{BF}_{20}$, promotes transitive model comparisons and facilitates applications such as comparing non-nested models or testing random effects. Alarmingly, considering all candidate models may complicate the interpretation of model selection and model averaging, particularly in certain mixed designs \citep{van_doorn_bayes_2023}. \citet[p.~314]{rouder_bayesian_2017} advocated for the RIO models due to three elimination strategies that considerably reduce the number of model comparisons and alleviate computational challenges: (1) not testing nuisance effects, (2) enforcing the \textit{principle of marginality}, and (3) excluding participant-by-factor interactions that are associated with (1). For example, \texttt{A+A:B+A:S} is fairly eliminated by these strategies. The principle of marginality asserts that higher-order terms should be interpreted and compared only in the presence of their lower-order components. This principle has long been a foundational convention in linear modeling, in part because violations of marginality can alter the interpretation of parameters across models. Consequently, in Bayesian model averaging, models that do and do not satisfy marginality may yield model-averaged posterior distributions that are not readily interpretable. Nevertheless, the strict application of this principle has recently been questioned in the context of psychological research \citetext{%
+	\citealp{heathcote_limits_2023}; %
+	\citealp{van_doorn_bayes_2023-2}; %
+	type II sum of squares in \citealp[pp.~8–9]{van_den_bergh_bayesian_2023}}.
+Broadly, researchers tend to enforce marginality for data-driven analyses aimed at general interpretability, while relaxing it in theory-driven tests where the exclusion of lower-order terms reflects a substantive, strategic constraint.
+
+\begin{table}[t]
+	\centering
+	\begin{tabular}{@{}lllll@{}}
+		\toprule
+		Testing          & $\mathcal{H}_0$ RIO & $\mathcal{H}_1$ RIO & $\mathcal{H}_0$ MRE    & $\mathcal{H}_1$ MRE    \\ \midrule
+		Interaction $AB$ & \texttt{A+B+S}      & \texttt{A*B+S}      & \texttt{A+B+S+A:S+B:S} & \texttt{A*B+S+A:S+B:S} \\
+		Factor $A$       & \texttt{B+S}        & \texttt{A+B+S}      & \texttt{B+S+A:S+B:S}   & \texttt{A+B+S+A:S+B:S} \\
+		Factor $B$       & \texttt{A+S}        & \texttt{A+B+S}      & \texttt{A+S+A:S+B:S}   & \texttt{A+B+S+A:S+B:S} \\ \bottomrule
+	\end{tabular}
+\caption{Model comparisons for two-way repeated-measures designs. Factors $A$ and $B$ are assumed to be fixed, while $S$ is treated as a nuisance factor. \texttt{A*B} is shorthand for \texttt{A+B+A:B}, where \texttt{A:B} is the explicit interaction term between $A$ and $B$. The same syntax applies to \texttt{A:S}, \texttt{B:S}, and \texttt{A:B:S}. Include \texttt{A:B:S} in MRE if the data are unaggregated; otherwise, exclude it. All models always include a fixed intercept. RIO = random intercept-only. MRE = maximal set of random effects.}\label{tbl2}
+\end{table}
+
+The RIO model is frequently used in agricultural experiments, particularly in randomized complete block designs (RCBD), where treatment combinations are randomly assigned within each block while positing that block-by-treatment interactions are negligible  \citetext{%
+	\citealp[pp.~606–608]{kruschke_doing_2014}; %
+	\citealp[chap.~5]{montgomery_design_2020}}.
+Blocking factors are generally included to reduce variability rather than being the primary focus of the study. They often represent pre-existing sources of variation rather than factors that are directly manipulated. For example, in a study testing the effects of general-purpose fertilizers on crop yield, an agricultural field can be divided into blocks based on soil type (e.g., one part of the field may have more nutrients than another). Each block consists of multiple plots, and each plot receives a randomly assigned fertilizer treatment. This RCBD ensures that differences in soil quality primarily affect only the plots within each block, rather than introducing systematic bias across treatments. If the soil composition in one block is different from another, the absolute yield may change, but the relative effect of each fertilizer should remain consistent. When the assumption that block-by-treatment interactions are negligible holds, an RIO model can be appropriate, with Bayes factors used to assess treatment effects. However, if treatment effects vary across blocks, a random-slope model should be considered, and model comparison may help determine whether the simpler RIO model is justified.
+
+\citet{van_den_bergh_bayesian_2023} argued that assuming no individual differences in the direction and magnitude of effects is neither intuitive nor desirable in most psychological experiments. In many areas of psychology, such as cognition, personality, or clinical research, individuals differ not just in their baseline response but also in how strongly they respond to different experimental conditions. One individual might show a significant improvement under a particular condition, while another might experience little to no change. In an MRE model, random intercepts account for differences in baseline responses across participants, while random slopes allow each participant to have their own deviation from the average slope (representing individual differences in the direction and magnitude of treatment effects). The corresponding code syntax in the `\textit{BayesFactor}' package is:
+\begin{center}
+	\texttt{lmBF(Y\textasciitilde A*B+S+A:S+B:S, whichRandom="S", ...)}.
+\end{center}
+
+The null and alternative MRE models in Table \ref{tbl2} enforce the principle of marginality only for fixed effects and always include random slopes. This updated approach ensures that the hypothesis being tested concerns whether the population-level effect is zero, without necessarily implying that the effect is zero for each participant \citep[p.~650]{oberauer_importance_2022}. Put simply, the marginal means are equal, whereas the conditional means are free to vary \citep{lee_conditional_2004}. Model selection strategy can reflect different psychological theories, rather than simply providing a better fit to the data. A referee drew our attention to extrasensory perception (ESP) as an illustrative example: the purported ability to acquire information without using the known physical senses \citep[e.g.,][]{bem_feeling_2011}. The standard on-average null hypothesis states that the average ESP ability in the population is zero, whereas the universal absence hypothesis, which many researchers are ultimately interested in, claims that no one possesses such an ability. A finding of an average null effect could conceal a small number of genuine psychics, counterbalanced by a similar number of individuals who show negative effects. This is what a decisive test of ESP would need to address. In this context, the principle of marginality can also be applied for both fixed and random effects when testing conditional means, as seen in the simultaneous fixed and random effects (SFR) models presented by \citet{van_den_bergh_bayesian_2023}.
+
+Bayesian model averaging, such as \textit{the inclusion Bayes factor}, is gaining increasing popularity among JASP users \citep{hinne_conceptual_2020,mathot_bayes_2017}. It signifies the updating factor from the prior inclusion–exclusion odds to the corresponding posterior odds in Eq.~(\ref{eq:9}), where subscripts $i$, $e$, and 0 index models in the inclusion set, the exclusion set, and any reference model, respectively. For testing factor $B$ in two-way repeated-measures designs, the inclusion MRE Bayes factor, across matched models, compares \texttt{A+B+S+A:S+B:S} and \texttt{B+S+A:S+B:S} to \texttt{A+S+A:S+B:S} and \texttt{S+A:S+B:S}, i.e., models containing $B$ relative to models stripped of $B$. Here, all candidate models enforce the principle of marginality for fixed effects and always include two random-slope terms.
+\begin{align}
+	\mathit{BF}_{\text{incl}}&=\frac{\mathbb{P}(\mathcal{M}_{\text{incl}}\mid\mathbf{y})\ /\ \mathbb{P}(\mathcal{M}_{\text{excl}}\mid\mathbf{y})}{\mathbb{P}(\mathcal{M}_{\text{incl}})\ /\ \mathbb{P}(\mathcal{M}_{\text{excl}})} \notag \\
+	&=\frac{\sum_{i}\mathit{BF}_{i0}\cdot\mathbb{P}(\mathcal{M}_i)\ /\ \sum_{e}\mathit{BF}_{e0}\cdot\mathbb{P}(\mathcal{M}_e)}{\sum_i\mathbb{P}(\mathcal{M}_i)\ /\ \sum_e\mathbb{P}(\mathcal{M}_e)} \label{eq:9}
+\end{align}
+
+The \textit{maximal} model, as investigated by \citet{bates_parsimonious_2015} and \citet{matuschek_balancing_2017}, consists of three components: (1) random intercepts, (2) random slopes, and (3) a fully general correlation structure of random effects in (1) and (2). However, the Bayesian rANOVA in the `\textit{BayesFactor}' package and JASP does not model the correlations between random intercepts and random slopes and instead assumes that these terms are independent. \citet{barr_random_2013} demonstrated that linear mixed-effects models generalize most effectively when they incorporate the maximal structure supported by the design. \citet[p.~12]{bates_parsimonious_2015} proposed a data-driven, parsimonious model comparison approach. The process begins with a maximal model, followed by fitting a zero-correlation model. Random effects are then systematically removed until the likelihood ratio test indicates no further improvement \citetext{%
+	\citealp{bates_fitting_2015}; %
+	\citealp[chap.~2.4]{pinheiro_mixed-effects_2000}; %
+	\citealp{self_asymptotic_1987,stram_variance_1994}}.
+Finally, correlation parameters are reintroduced for the remaining random effects. Nevertheless, \citet[Simulation 3]{oberauer_importance_2022} demonstrated that omitting correlations between random slopes from the model, even when they exist in the data, has innocuous consequences for hypothesis testing with Bayes factors.
+
+To assess the strength of evidence supporting either the alternative or null hypothesis, we adopt the Bayes factor classification scheme outlined by \citet{held_p-values_2018}. A Bayes factor $\mathit{BF}_{10}=1\ \!/\ \!\mathit{BF}_{01}$ provides moderate evidence for an effect if it falls between 3 and 10, substantial evidence if greater than 10, and inconclusive evidence if between 1/3 and 3. Ideally, the Bayes factor should be interpreted as a continuous measure of evidence within the context of the research, rather than being compared to a threshold \citep[p.~318]{rouder_bayesian_2017}. For purposes of comparing frequentist and Bayesian methods, however, we frame the analogous type I and type II errors in terms of rejecting or failing to reject the null hypothesis, depending on whether it is true or false, based on whether $\mathit{BF}_{10}>3$ or not. Although Bayes factors may track $p$-values in the sense that both tend to indicate stronger evidence as effect sizes increase, Bayes factors uniquely quantify relative evidence between models and can also provide evidence for the absence of an effect, among other advantages \citep{wei_investigating_2023}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{A paradox arising from model misspecification in repeated-measures designs}
+\label{sec3}
+
+The paradox refers to the disagreement between the frequentist rANOVA and the RIO Bayes factor in hypothesis testing for repeated-measures designs, when the latter is based on a model implying compound symmetry (CS) and the data do not adhere to this assumption. Specifically, the $p$-value suggests evidence against the null hypothesis whereas the RIO Bayes factor suggests that the data are better explained by the null hypothesis than by the alternative hypothesis. We will designate this as the CS-RIO paradox and illustrate it with two examples.
+
+This phenomenon echoes the Jeffreys–Lindley paradox in the sense of exhibiting contradictory inferences, but it differs in two ways \citep{bartlett_comment_1957,jeffreys_tests_1935,lindley_statistical_1957,wagenmakers_history_2023}. First, the CS-RIO paradox is not dependent on specific sample sizes or effect sizes, whereas the Jeffreys–Lindley paradox hinges on large sample sizes and small effect estimates. Second, we observe in Example 2 and Simulation 1 that the CS-RIO paradox can also occur in the opposite direction, where the $p$-value does not reject the null hypothesis, yet the RIO Bayes factor favors the alternative hypothesis over the null hypothesis.
+
+%====================================================
+
+\subsection{Example 1: Motor representations}
+\label{sec3.1}
+
+As an actual example of the paradox we have been discussing, we will consider unpublished data from an experiment conducted by Daniel Bub and Michael Masson. In that experiment, participants were shown pictures of handled objects, presented either with their handle on the right or the left side of space. Each object was shown in an upright or inverted orientation and the participant's task was to make a speeded button press to indicate the orientation (e.g., a left button press for upright, a right press for inverted). There were two repeated-measures independent variables: \textit{response mode} (i.e., making responses with the index finger of each hand or responding with the index finger and middle finger of the dominant hand) and \textit{alignment} between the object's handle and the required response (e.g., handle on left and left button press were considered aligned, whereas handle on left and right button press were not aligned). Thirty-one participants were tested and the mean correct response time in each of the four conditions of the design was computed for each participant. The data set and \texttt{R} scripts are available in the online supplementary materials at \url{https://osf.io/y6k8x/}. The estimated variance-covariance matrix is obtained as
+\begin{equation*}
+	\hat{\boldsymbol{\Sigma}}=\begin{pmatrix} 3937 & -207 & 4067 & -831 \\ -207 & 5202 & -566 & 5922 \\ 4067 & -566 & 4780 & -979 \\ -831 & 5922 & -979 & 7274 \end{pmatrix}.
+\end{equation*}
+
+The matrix represents the four conditions of the design (onehand-aligned, twohands-aligned, onehand-misaligned, twohands-misaligned). A negative estimated covariance suggests that participants who perform above the mean in one condition tend to perform below the mean in another, possibly due to differences in task difficulty and cognitive demands. The presence of both negative and positive covariances clearly indicates a violation of compound symmetry, which may suggest the presence of random slopes in the data. This violation is further reflected in the MSE terms in the two-way rANOVA, where the MSE for factor $A$ (response mode) is substantially larger than that for factor $B$ (alignment), with values of 11,585 and 409, respectively. It is evident from Eq.~(\ref{eq:3}) that negative covariances occur because ${\hat{\sigma}}_{\alpha s}^2>{\hat{\sigma}}_{\beta s}^2+{\hat{\sigma}}_s^2$, and ${\hat{\sigma}}_{\alpha\beta s}^2$ is combined with ${\hat{\sigma}}_\epsilon^2$ when $R=1$. Such a difference suggests heterogeneity in effect sizes across participants, reinforcing the need for a model that accounts for individual differences in slopes.
+
+In the present data set, the RIO Bayes factors provide moderate evidence against an interaction effect ($\mathit{BF}_{01}=3.37$) and inconclusive evidence for either factor $A$ or $B$ ($\mathit{BF}_{01}=0.45$ and $\mathit{BF}_{01}=1.38$). However, frequentist $p$-values yield contrasting results: the interaction and main effect of factor $B$ are statistically significant ($p=.0298$, $F(1,30)=5.20$, and $p<.001$, $F(1,30)=28.22$), whereas the main effect of factor $A$ is not ($p=.183$, $F(1,30)=1.85$). All $p$-values and Bayes factors are detailed in Table \ref{tbl3}. A closer examination using separate RIO Bayes factors for factor $B$ at each level of factor $A$ indicates support for an effect of factor $B$ ($\mathit{BF}_{01}=0.11$ and $\mathit{BF}_{01}=3.98\times10^{-4}$).
+
+After incorporating random slopes, the MRE Bayes factors now provide decisive evidence for factor $B$ ($\mathit{BF}_{01}=6.08\times10^{-4}$) but remain inconclusive for both the interaction and factor $A$ ($\mathit{BF}_{01}=0.49$ and $\mathit{BF}_{01}=1.89$). The MRE model eliminates the discrepancy between Bayesian and frequentist results, revealing a more pronounced effect of factor $B$. In sum, participants responded differently to the orientation of handled objects based on handle alignment, but response mode had no significant effect.
+
+\begin{table}[t]
+	\centering
+	\begin{tabular}{@{}llllll@{}}
+		\toprule
+		Testing          & \textit{df} & $F$   & $p$                 & RIO $\mathit{BF}_{01}$ & MRE $\mathit{BF}_{01}$ \\ \midrule
+		Interaction $AB$ & 1, 30       & 5.20  & 0.0298              & 3.37                   & 0.49                   \\
+		Factor $A$       & 1, 30       & 1.85  & 0.183               & 0.45                   & 1.89                   \\
+		Factor $B$       & 1, 30       & 28.22 & $9.64\times10^{-6}$ & 1.38                   & $6.08\times10^{-4}$    \\ \bottomrule
+	\end{tabular}
+\caption{Frequentist and Bayesian rANOVA results for Example 1. Factors $A$ (response mode) and $B$ (alignment) are assumed to be fixed. The Monte Carlo errors associated with the computation of Bayes factors are all below 10\%. RIO = random intercept-only. MRE = maximal set of random effects.}\label{tbl3}
+\end{table}
+
+%====================================================
+
+\subsection{Example 2: Stroop effect}
+\label{sec3.2}
+
+To illustrate the performance of the MRE Bayes factor approach in JASP, \citet{van_den_bergh_bayesian_2023} analyzed empirical data from a Stroop effect experiment \citep{hershman_resting_2024,stroop_studies_1935}. In this study, participants identified the font color of color words while disregarding the semantic content of the words. The stimuli consisted of three levels: congruent (e.g., the word `blue' displayed in blue font), incongruent (e.g., the word `blue' displayed in red font), and neutral (e.g., a nonword displayed in a specific font color). To investigate the influence of task interruption on performance, Stroop trials were interspersed with break trials, during which participants observed a black square rest stimulus requiring no response. Each of the 19 participants completed balanced 432 Stroop trials (144 per congruency condition) and 432 break trials, presented in random order. The wide-format response time is included as a built-in data set in JASP to demonstrate the use of rANOVA.
+
+Table \ref{tbl4} presents a replication of the frequentist and Bayesian rANOVA results reported by \citet{van_den_bergh_bayesian_2023}, with factor $A$ representing \textit{preceding trial} type and factor $B$ representing \textit{congruency}. Minor deviations in the Bayes factor estimates are attributed to Monte Carlo variability and rounding errors. The frequentist analysis identifies a significant main effect of factor $B$ ($p<.001$, $F(2,36)=22.16$) but does not detect a significant interaction effect ($p=.115$, $F(2,36)=2.30$) or a significant main effect for factor $A$ ($p=.152$, $F(1,18)=2.24$). When the same data are analyzed using a model assuming RIO, the Bayes factor results suggest moderate evidence for no interaction ($\mathit{BF}_{01}=5.78$) and strong evidence for the effect of factor $A$ ($\mathit{BF}_{01}=0.05$) but inconclusive evidence for factor $B$ ($\mathit{BF}_{01}=1.02$). The estimated variance-covariance matrix of the six conditions reveals unequal variances and a mixture of positive and negative covariances, indicating violations of compound symmetry in this $2\times3$ repeated-measures design.
+
+\citet{van_den_bergh_bayesian_2023} argued that the assumption of constant effects underlying the RIO model is often overlooked and generally undesirable for most analysts, as it is frequently implausible in practice. We consider the primary issue to be that the RIO model is insufficient to adequately capture the marginal covariance structure when compound symmetry is violated. To address this limitation, the MRE model incorporates random slopes, aligning Bayesian rANOVA results with frequentist findings. In the Stroop experiment, the Bayes factors obtained using the MRE model align with the rANOVA $p$-values, showing a significant main effect of factor $B$ ($\mathit{BF}_{01}=1.41\times10^{-4}$) but no evidence for a main effect for factor $A$ or the interaction ($\mathit{BF}_{01}=1.47$ and $\mathit{BF}_{01}=1.01$). In sum, participants responded differently to congruent, incongruent, and neutral word-font color combinations, demonstrating the Stroop effect, while preceding trials had minimal impact on performance.
+
+\begin{table}[t]
+	\centering
+	\begin{tabular}{@{}llllll@{}}
+		\toprule
+		Testing           & \textit{df} & $F$   & $p$                 & RIO $\mathit{BF}_{01}$ & MRE $\mathit{BF}_{01}$ \\ \midrule
+		Interaction $AB$* & 2, 36       & 2.30  & 0.115               & 5.78                   & 1.01                   \\
+		Factor $A$        & 1, 18       & 2.24  & 0.152               & 0.05                   & 1.47                   \\
+		Factor $B$*       & 2, 36       & 22.16 & $5.33\times10^{-7}$ & 1.02                   & $1.41\times10^{-4}$    \\ \bottomrule
+	\end{tabular}
+\caption{Frequentist and Bayesian rANOVA results for Example 2. Factors $A$ (preceding trial) and $B$ (congruency) are assumed to be fixed. The Monte Carlo errors associated with the computation of Bayes factors are all below 10\%. RIO = random intercept-only. MRE = maximal set of random effects. *Mauchly's test indicates that the assumption of sphericity is violated ($p<.05$). The $p$-values remain similar after applying either the Greenhouse–Geisser or Huynh–Feldt correction to the degrees of freedom.}\label{tbl4}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Simulation studies}
+\label{sec4}
+
+In this section, we present a series of simulation studies to evaluate the performance of Bayesian rANOVA and Bayesian $t$-tests under model misspecification using the `\textit{BayesFactor}' package. When $R>1$, the data were unaggregated, and the highest-order within-participant interactions were included in the models for computing the MRE Bayes factors (except for Fig.~2[d]). When $R=1$, this random-slope term was omitted, as shown in Table \ref{tbl2}. The Monte Carlo errors associated with the computation of Bayes factors were all below 5\%. The data set and \texttt{R} scripts are available at \url{https://osf.io/y6k8x/}. These simulations systematically explore how the RIO and MRE Bayes factors behave under various model misspecifications, including violations of compound symmetry and departures from normality, across different sample sizes and effect sizes. Our goal is to assess the robustness and consistency of these Bayes factors when the underlying assumptions of the models are not perfectly met.
+
+%====================================================
+
+\subsection{Simulation 1: Violations of compound symmetry}
+\label{sec4.1}
+
+In our first simulation, we continue to investigate the impact of violating compound symmetry on the RIO and MRE Bayes factors when testing for a main effect of interest, namely factor $B$ as usual, in a $2\times2$ repeated-measures design. The $4\times4$ variance-covariance matrix for this design includes four variances and six covariances, structured to reflect specific correlation patterns. The matrix was devised to yield (1) approximately equal sample variances for the four conditions, $y_{11}$, $y_{21}$, $y_{12}$, and $y_{22}$, (2) two high correlations for factor $B$ within each level of factor $A$ (e.g., .94 between $y_{11}$ and $y_{12}$, as well as between $y_{21}$ and $y_{22}$), and (3) four low correlations across the levels of factor $A$ (e.g., .25 between $y_{11}$ or $y_{12}$ and $y_{21}$ or $y_{22}$).
+\begin{equation*}
+	\hat{\sigma}_y^2\begin{pmatrix} 1 & 0.25 & 0.94 & 0.25 \\ 0.25 & 1 & 0.25 & 0.94 \\ 0.94 & 0.25 & 1 & 0.25 \\ 0.25 & 0.94 & 0.25 & 1 \end{pmatrix}
+\end{equation*}
+In other words, conditions that share the same level of factor $A$ exhibit strong correlations, while conditions across different levels of factor $A$ display weaker correlations. This correlation structure violates compound symmetry. Additionally, factor $A$ induces a substantially larger MSE in a frequentist rANOVA compared to that induced by factor $B$.
+
+We generated 200 data sets under each of four combinations of scenarios: factor $B$ had no effect or a medium effect, combined with compound symmetry being met \textit{in the absence of random slopes} or being violated. The true data-generating model always included the main effect of factor $A$ and excluded the interaction effect between factors $A$ and $B$, ($\alpha\beta)_{ij}=0$, meaning the differences associated with factor $B$ remained consistent across the levels of factor $A$. The number of participants and trials were set to $n\in\{48,\ 100\}$ and $R=1$, respectively. Each data set was analyzed using frequentist rANOVA and two Bayesian counterparts: one assuming RIO and the other implementing MRE.
+
+Figure \ref{fig1} displays scatterplots depicting pairs of RIO and MRE Bayes factors for testing the main effect of factor $B$. The figure considers two sample sizes ($n=48$ in panels [a] and [c], and $n=100$ in panels [b] and [d]) and two covariance structures (compound symmetry holds in panels [a] and [b], while it is violated in panels [c] and [d]). Simulations with the same sample size but varying effect sizes can be combined into a single panel, as larger Bayes factors are typically generated with larger effect sizes \citep{wei_investigating_2023}. Across all four panels, the data points generally align along a straight line, indicating a systematic relationship between the two types of Bayes factors. The MRE Bayes factor broadly surpasses the RIO Bayes factor in supporting the alternative hypothesis ($\text{MRE}\ \mathit{BF}_{10} > \text{RIO}\ \mathit{BF}_{10}$) when compound symmetry is violated. To compare the frequentist and Bayesian results, each data point is color- and shape-coded as follows: a purple circle represents a $p$-value less than .01, an orange triangle indicates a $p$-value between .01 and .05, a blue square corresponds to a $p$-value between .05 and .1, and a black plus sign denotes a $p$-value greater than .1. Notably, in panel (c), most purple circles (significant $p$-values at a level of .01) fall below the horizontal threshold ($\text{RIO}\ \mathit{BF}_{10}<1/3$) and above the vertical threshold ($\text{MRE}\ \mathit{BF}_{10}>3$), when the alternative hypothesis is true.\footnote[7]{Supplementary figures with the same visualization, colored by the true effect size, can be accessed via the Open Science Framework.} This pattern confirms the CS-RIO paradox, where the $p$-value rejecting the null hypothesis contradicts the RIO Bayes factor supporting the null but aligns with the MRE Bayes factor favoring the alternative. More importantly, the RIO Bayes factor does not appear to approach infinity for an effect as the number of participants increases (model selection consistency does not hold); instead, it remains bounded within the region of null acceptance and inconclusiveness in panel (d). When the data structure adheres to compound symmetry, an overparameterized model with random slopes yields a smaller number of instances where $\text{MRE}\ \mathit{BF}_{10}>3$, whether the null hypothesis is false or true, as indicated by a line with a slope marginally less than 1 in panels (a) and (b). This result corresponds to a slight increase in analogous type II error rates or a decrease in analogous type I error rates in the MRE Bayes factor.
+
+Researchers should consider alternative approaches like a more complex mixed-effects model to achieve more reliable and valid results when compound symmetry is untenable \citep[e.g.,][]{brumback_sensitivity_2004,crowder_repeated_2001,hernan_estimating_2002,robins_marginal_2000}. Neglecting to include random slopes fails to accommodate individual variability in treatment responses, presuming uniformity across conditions. Alternatively, it is understood that inclusion of random slopes leads to a model with a more flexible marginal covariance structure and that this can be useful when data exhibit violations of compound symmetry.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Simulation 1/Figure 1/Figure 1.png}
+	\caption{Scatterplots of RIO and MRE Bayes factors (natural logarithm scale) for testing the main effect of interest in a $2\times2$ repeated-measures design under four scenarios: (a) 48 participants with compound symmetry (CS) holding, (b) 100 participants with CS holding, (c) 48 participants with violation of CS, and (d) 100 participants with violation of CS. The dashed lines indicate Bayes factors of 1/3 and 3, representing moderate evidence against and for an effect, respectively. RIO = random intercept only; MRE = maximal set of random effects. Points are color-coded according to the $p$-value range. Each panel contains 400 data points.}\label{fig1}
+\end{figure}
+
+%====================================================
+
+\subsection{Assessing adherence to equal covariances with random slopes}
+\label{sec4.2}
+
+As discussed in Section \ref{sec2.1}, compound symmetry holds when the three random-slope variances are equal in a $2\times2$ repeated-measures design. The RIO model constitutes a special case in which all three random-slope variances are zero. Model misspecification emerges when the data exhibit equal nonzero random-slope variances, but the RIO model is assumed.
+
+We aim to extend Simulation 1 by maintaining compound symmetry \textit{in the presence of random slopes}, which induced either a positive or a negative correlation coefficient. Following the notation in Section \ref{sec2}, the correlation was given by $\rho=\lambda_2/(\lambda_1+\lambda_2)$ in Table \ref{tbl5}. We also considered cases where compound symmetry was violated due to heteroscedastic residuals (unequal variances), while the covariances remained identical. Specifically, the residual standard deviation for the second level of factor $A$ was set to three times that of the first level (the ratio of the marginal variances was 23:151). The population mean difference for factor $B$ of interest was kept the same for all simulation settings. The number of trials was set to $R\in\{1,\ \!3\}$ to investigate the impact of aggregation.
+
+\begin{table}[t]
+	\centering
+	\begin{tabular}{@{}lllll@{}}
+		\toprule
+		$\sigma_s$ & $\sigma$ & $\sigma_\epsilon$ & $\rho$ & CS           \\ \midrule
+		1.225      & 0        & 1                 & 0.60   & holds        \\
+		1          & 0.25     & 1                 & 0.43   & holds*       \\
+		0.5        & 0.25     & 1                 & 0.13   & holds*       \\
+		0.5        & 0.75     & 1                 & -0.11  & holds*       \\
+		0.5        & 2.5      & 1                 & -0.3   & holds*       \\
+		0.5        & 0.25     & $\{1,\ \!3\}$     &        & is violated* \\ \bottomrule
+	\end{tabular}
+\caption{Standard deviations for random intercepts, random slopes, and residuals in $2\times2$ repeated-measures designs. Three random-slope variances are set equal to ensure equal covariances between the repeated measures. CS = compound symmetry.}\label{tbl5}
+\end{table}
+
+Figure \ref{fig2} displays scatterplots for the extended Simulation 1, where the marginal variance-covariance matrix was constructed to manifest equal covariances among the four conditions. Complementing Fig.~\ref{fig1}, the asterisks in Table \ref{tbl5} and Fig.~\ref{fig2} denote cases under which compound symmetry holds due to equal nonzero random-slope variances, and cases under which it is violated as a result of unequal residual variances. All panels delineate a linear relationship between the RIO and MRE Bayes factors. In Fig.~\ref{fig2}(a), these two methods appear robust to heteroscedastic residuals in the $2\times2$ repeated-measures design. Panels (a)–(c) of Fig.~\ref{fig2} do not exhibit the CS-RIO paradox. The pattern is so similar to that in panel (a) of Fig.~\ref{fig1} that one cannot ascertain whether the data generation warrants random slopes (Fig.~\ref{fig2}[b] includes them, whereas Fig.~\ref{fig1}[a] excludes them). Therefore, we emphasize that the existence of individual differences in the effects is not necessarily the cause of the CS-RIO paradox; rather, it is the violation of compound symmetry, reflected in covariance heterogeneity. The observed effect in Fig.~\ref{fig2}(c) is expected to be smaller than that in Fig.~\ref{fig2}(b), as the former (negative correlation) involves much larger random-slope variances, as specified in Table \ref{tbl5}.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Simulation 1 continued/Figure 2/Figure 2.png}
+	\caption{Scatterplots of RIO and MRE Bayes factors (natural logarithm scale) for testing the main effect of interest in a $2\times2$ repeated-measures design, assuming equal nonzero random-slope variances but differing across the scenarios: (a) unequal residual variances, (b) compound symmetry (CS) with positive correlation, (c) CS with negative correlation, and (d) multiple trials under CS with the same negative correlation. The dashed lines indicate Bayes factors of 1/3 and 3, representing moderate evidence against and for an effect, respectively. RIO = random intercept only; MRE = maximal set of random effects. Points are color-coded according to the $p$-value range. Each panel contains 200 data points.}\label{fig2}
+\end{figure}
+
+The linear relationship between the RIO and MRE Bayes factors is also observed for unaggregated data (e.g., $R=3$), whether the correlation is relatively large and positive ($\rho=.43$) or small and negative ($\rho=-.11$), as shown in the online supplementary materials. When the unaggregated data are strongly negatively correlated ($\rho=-.3$), models incorporating the highest-order within-participant interactions start to reveal that the median Monte Carlo error associated with the MRE Bayes factors exceeds 48\%, with some errors surpassing 85\%.\footnote[8]{Increasing the number of importance sampling iterations from $10^5$ to $10^6$ reduces the Monte Carlo error from approximately 48\% to 20\%. However, this marginal gain comes at the expense of a substantially longer run time.} Once the random slopes for the interaction are removed from the MRE model fitted to the unaggregated data, the Monte Carlo error rate becomes acceptable (below 5\%), and the Bayes factor estimates are shown in Fig.~\ref{fig2}(d). The relationship between RIO and MRE tends to flatten, indicating slower evidence accumulation for MRE. This pattern may suggest that $p$-values just below .05 (orange triangles) often correspond to inconclusive MRE Bayes factors at this sample size. On the other hand, the RIO Bayes factor provides compelling evidence for an effect, although this evidence is likely unreliable. Under the null hypothesis in the simulation, the proportions of the RIO and MRE Bayes factors exceeding 3 for an effect are approximately 13\% and 2\%, respectively, when $R=3$, in contrast to the reference rate at 1.5\% when $R=1$. A large random-slope variance, which induces a negative correlation, reduces the chance of obtaining strong evidence for an effect, whereas unaggregation across multiple trials increases that chance in RIO, creating a trade-off between these opposing influences. \citet{oberauer_importance_2022} concluded that the RIO Bayes factors were much less extreme when using aggregated data. Researchers could continue to use the RIO Bayes factor when compound symmetry holds, regardless of individual differences in effects. However, caution should be exercised when data are unaggregated and exhibit strong negative correlations.
+
+%====================================================
+
+\subsection{Simulation 2: Violations of normality}
+\label{sec4.3}
+
+We assessed the robustness of the Bayes factor against violations of normality for random effects and residuals in the $2\times2$ repeated-measures design described in Eq.~(\ref{eq:2}). Here, \textit{robustness} means that the finite-sample distribution of the Bayes factor is invariant to model misspecification; otherwise, it diverges. When robustness cannot be established, we may still target model selection consistency, whereby the Bayes factor produces the same conclusion within a tolerance. Our study followed the simulation schemes outlined by \citet[p.~649]{oberauer_importance_2022}. Although his work primarily focused on incorporating random slopes for factors $A$ and $B$ to mitigate the risk of inflated false positives in Bayes factor analysis, our study examined the underlying distributional assumptions. We varied the population-level effect of the factor of interest over four settings, $\beta_2\in\{0,\ \!0.125,\ \!0.25,\ \!0.375\}$, representing null, small, medium, and large effect sizes, respectively. The other factor's effect was fixed at $\alpha_2=0.25$. We examined three different sample sizes for participants and trials, with $n\in\{12,\ \!24,\ \!48\}$ and $R\in\{1,\ \!4,\ \!10\}$. The other constant settings were given by $\mu=0$, $(\alpha\beta)_{ij}=0$, $ \sigma_s=0.5$, $\sigma_{\alpha s}=\sigma_{\beta s}=0.25$, $\sigma_{\alpha\beta s}=0$, and $\sigma_\epsilon=1$. For each combination of parameters, 200 simulation runs were conducted.
+
+We considered seven cases to evaluate the impact of normality violations: (a) the normality assumption holds for random effects and for residuals; (b) random effects are right-skewed; (c) residuals are right-skewed; (d) both random effects and residuals are right-skewed; and (e)–(g) the left-skewed counterparts of cases (b)–(d). The random effects included random intercepts, random slopes for factor $A$, and random slopes for factor $B$. While maintaining the same population mean and standard deviation as when the normality assumption was met, the skewness parameter of the skewed-$t$ distribution with four degrees of freedom was set to 20 or 1/20, representing a severe violation of normality \citep{wuertz_fgarch_2024}. This skewed probability density is provided in \ref{app2}.
+
+Figure \ref{fig3} presents boxplots of MRE Bayes factors for testing the main effect of the factor of interest across two true effect sizes and eight cases representing various skewness assumptions, based on data simulated from 48 participants and 10 trials per condition. Case 0, an independent replicate of Case 1 with all normality assumptions satisfied, serves as a reference group to provide a benchmark for assessing Monte Carlo variability in sampling distributions. We leveraged the earth mover’s distance (EMD, as labeled in Fig.~\ref{fig3}), also known as the Wasserstein 1-distance, to quantify the divergence between two probability measures, based on samples drawn from these distributions \citep{schuhmacher_transport_2024}. EMD represents the minimum cost required to transform each distribution in Cases 1 through 7 into the reference distribution of Case 0, where the cost is calculated as the integration of the mass and distance being moved \citep{kantorovich_mathematical_1960,rubner_metric_1998,vaserstein_markov_1969}. An EMD value close to the reference value in Case 1 indicates that the sampling distributions of the Bayes factor are highly similar.\footnote[9]{In theory, an expected EMD value of 0 indicates that two population distributions are identical. However, in practice, even two independent samples from the same population can yield arbitrary EMD values because the calculation is variant to scaling. For example, multiplying the samples by a factor of 100 results in an observed EMD value scaled up by a factor of 100. In the online supplementary materials, we also evaluated additional measures, including the Kullback–Leibler divergence, Hellinger distance, and the Kolmogorov–Smirnov statistic.}
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Simulation 2/Figure 3/Figure 3.png}
+	\caption{Boxplots of MRE Bayes factors (natural logarithm scale) for testing the main effect of interest in a $2\times2$ repeated-measures design with 48 participants and 10 trials per condition across two effect sizes (ES: null, positive medium) and eight cases based on the data-generating distributions of random effects and residuals. The dashed lines indicate Bayes factors of 1/3 and 3, representing moderate evidence against and for an effect, respectively. MRE = maximal set of random effects; EMD = earth mover's distance, quantifying divergence between distributions. Each boxplot contains 200 data points.}\label{fig3}
+\end{figure}
+
+Visual examination and EMD comparisons suggest that the distributions of the Bayes factors are nearly identical across the eight cases in the null-effect panel, with median values consistently below 1/3 and only occasional outliers exceeding 3, likely reflecting analogous type I errors. Given the large sample size, the medium-effect panel yields substantially large Bayes factors, with median values consistently well above $10^3$, providing extreme evidence in favor of an effect. The finite-sample distributions of the Bayes factors in Cases 0–4 are broadly similar when the data-generating skewness aligns with the direction of the effect. In contrast, Cases 5–7 show modest divergence: negative skewness in the data generation leads to greater variability in the Bayes factors. However, all the median values remain consistent, reflecting high analogous statistical power (Fig.~\ref{fig3}, right panel). In \ref{app4}, Fig.~\ref{figD1} indicates that median Bayes factors and interquartile ranges are similar across simulation settings with respect to the conclusions they support, although the sampling distributions converge at different rates. These findings highlight the consistency of MRE Bayes factors under violations of normality assumptions for random effects and residuals in repeated-measures designs. A complete set of results for different effect sizes and sample sizes of participants and trials is available in the online supplementary materials. As a complementary analysis, we also examine the inclusion MRE Bayes factor in Eq.~(\ref{eq:9}), assuming equal prior probabilities across the five candidate models in two-way repeated-measures designs. The results are in perfect concordance with those shown in Fig.~\ref{fig3}. The consistency of MRE Bayes factors to distributional violations persists across varying effect and sample sizes.
+
+%====================================================
+
+\subsection{Simulation 3: Bayesian $t$-tests}
+\label{sec4.4}
+
+The paired $t$-test compares the means of two related groups by evaluating the differences between paired observations. Interchangeably, the one-sample $t$-test assesses whether the mean of a single group differs from a specified value. This design is of particular interest because it is highly amenable to formal investigation of the Bayes factor's consistency under violation of distributional assumptions (see Theorem 1). Let $y_i\overset{\mathrm{i.i.d.}}{\sim}\mathcal{N}(\sigma_\epsilon\delta,\ \!\sigma_\epsilon^2)$ for $i=1,\dotsb,n$, where the standardized effect size is $\delta=\mu/\sigma_\epsilon$, the grand mean is $\mu$, and the error standard deviation is $\sigma_\epsilon$. The null and alternative hypotheses prescribe $\mathcal{H}_0:\delta=0$ versus $\mathcal{H}_1:\delta\neq0$. The \textit{ttestBF} function specifies the prior distributions as $\pi(\sigma_\epsilon)\propto1/\sigma_\epsilon$ and $\delta\sim\operatorname{Cauchy}(0,\gamma)$, with the default scale parameter $\gamma=\sqrt{2}/2$ \citetext{%
+	\citealp[p.~24]{ly_harold_2016}; %
+	\citealp[p.~237]{rouder_bayesian_2009}; %
+	\citealp[p.~360]{rouder_default_2012}}.
+The RIO and MRE models are the same for aggregated data because random slopes are combined with errors in the one-sample design.
+
+\begin{table}[t]
+	\centering
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabular}{@{}ll@{}}
+		\toprule
+		Case                                                                             & Data-generating model                                                                            \\ \midrule
+		(0) and (1) Normal                                                               & $\mathcal{N}(\mu,\ \!\sigma_\epsilon^2)$, $\sigma_\epsilon=1$, $\mu\in\{0,\ \!0.5\}$.            \\
+		(2) Uniform                                                                      & $U(\mu-\sqrt{3}\sigma_\epsilon,\ \!\mu+\sqrt{3}\sigma_\epsilon)$.                                \\
+		\begin{tabular}[c]{@{}l@{}}(3) Symmetric\\ \phantom{(3)} Triangular\end{tabular} & $\mathit{Tri}(\mu-\sqrt{6}\sigma_\epsilon,\ \!\mu+\sqrt{6}\sigma_\epsilon,\ \!\mu)$.             \\
+		\multirow{3}{*}{(4) and (5) Bimodal}                                             & $(1-w)\cdot\mathcal{N}\left(\mu-\mu_0/(1-w),\ \sigma_\epsilon^2-\mu_0^2/(w(1-w))\right)$         \\
+		& $+w\cdot\mathcal{N}\left(\mu+\mu_0/w,\ \sigma_\epsilon^2-\mu_0^2/(w(1-w))\right)$, $\mu_0=0.45$, \\
+		& $w\in\{1/2,\ \!1/3\}$ for symmetry or asymmetry.                                                 \\
+		\multirow{2}{*}{(6) and (7) Skewed-$t$}                                          & $\mathit{ST}(\mu,\ \!\sigma_\epsilon^2,\ \!\nu,\ \!\xi)$, $\nu=4$,                               \\
+		& $\xi\in\{20,\ \!1/20\}$ for positive or negative skewness.                                       \\ \bottomrule
+	\end{tabular}
+	\caption{Models for simulated data in a one-sample design. All models maintain the same population mean $\mu$ and standard deviation $\sigma_\epsilon$. The triangular distribution takes three parameters (i.e., the lower limit, the upper limit, and the mode). For the skewed Student-$t$ distribution, $\nu>2$ is the shape parameter, and $\xi$ is the skewness parameter.}\label{tbl6}
+\end{table}
+
+In each of 200 simulation runs, we randomly generated two independent samples each of size $n$ from the same normal model with $\sigma_\epsilon=1$. Having two samples in each run again allowed us to assess the effect of simulation replicate sampling error under conditions where statistical assumptions were met. To assess the sensitivity of the analytic methods to violations of assumptions, we generated 200 simulation runs of sample size $n$ for each of six non-normal models, while maintaining the same population mean and standard deviation as in the normal distributions. The non-normal distributions considered were the uniform, symmetric triangular, two versions of a bimodal Gaussian mixture \citep{millard_envstats_2024}, and two versions of skewed-$t$ (the same as in Simulation 2) (see Table  \ref{tbl6}). We refer to these non-normal cases as misspecified scenarios since in each case the data-generating model deliberately violates the assumption of normality, whereas the Bayes factors for the one-sample $t$-tests were still computed based on the normality assumption. In particular, Cases 5 and 6 are skewed in the direction of the effect, while Case 7 is skewed in the opposite direction. The simulation settings considered $n\in\{12,\ \!24,\ \!48,\ \!100\}$ and $\delta\in\{0,\ \!0.5\}$. Consequently, for each combination of $n$ and $\delta$, we obtained eight sets of 200 Bayes factors, one set for each non-normal distribution and two sets for the normal distribution. We created a boxplot for each set, structurally similar to Fig.~\ref{fig3}, so as to summarize the sampling distribution of the Bayes factors across cases where a null effect ($\delta=0$) or a positive medium effect ($\delta=0.5$) was present. The value printed with each boxplot in Fig.~\ref{fig4} represents the EMD, aimed to compare the distributional divergence between scenarios with normal and non-normal distributions. The complete set of reports for the Bayes factors and $p$-values under different violations of normality for each sample size can be viewed in the online supplementary materials.
+
+The EMD comparisons reveal several key insights. First, when data are simulated under the null hypothesis, we observe that the distributions of Bayes factors remain nearly identical regardless of model misspecification and this is observed for each sample size. Second, robustness under model misspecification was also observed under the alternative hypothesis whenever the true distribution was symmetric (i.e., uniform, symmetric triangular, and symmetric bimodal distributions). Finally, under the alternative, we found that the distributions of Bayes factors differed when the misspecified model was asymmetric (i.e., skewed-$t$ and asymmetric bimodal distributions), and, in contrast to the robust case, these distributions did not even converge to the reference distribution with increasing sample size (Fig.~\ref{figD2} in \ref{app4}).\footnote[10]{An \texttt{R} Markdown file with interactive empirical cumulative distribution function figures for paired $t$-tests with up to 1,000 participants is available via the Open Science Framework.} In these cases, the distributions of the Bayes factors exhibit greater variability, suggesting that the presence of asymmetry that opposes the effect direction can impact the performance of the $t$-tests and other null-hypothesis significance tests.\footnote[11]{If the effect size is negative, we observe, as expected, that the distributions in Cases 6 and 7 in Fig.~4 switch places.} This variability can inflate evidence for an effect in small samples (e.g., $n=12$ in Fig.~\ref{figD3}): for Cases 0–6, the interquartile ranges of the Bayes factors fall within the inconclusive range, yet in Case 7, 43\% of Bayes factors exceed 3.
+
+Reassuringly for practitioners, the consistency of the Bayes factor remains intact, even with skewed data. That is, the Bayes factor evidence in favor of the true null increases with sample size, and likewise, the evidence supporting the true alternative also grows as the sample size increases. Theorem \ref{theo} encapsulates the limiting behavior of the Bayes factor for a one-sample $t$-test, where $\plim$ denotes the convergence in probability. The theorem asserts that the Bayes factor is model-selection consistent under model misspecification, provided the true distribution has a finite second moment. The sampling distribution of the Bayes factor changes under misspecification, which can affect its rate of convergence.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Simulation 3/Figure 4/Figure 4.png}
+	\caption{Boxplots of Bayes factors (natural logarithm scale) for paired $t$-tests with 100 participants across two effect sizes (ES: null, positive medium) and eight cases based on the data-generating distributions of residuals. The dashed lines indicate Bayes factors of 1/3 and 3, representing moderate evidence against and for an effect, respectively. EMD = earth mover's distance, quantifying divergence between distributions. Each boxplot contains 200 data points.}\label{fig4}
+\end{figure}
+
+\begin{theorem} \label{theo}
+	Let $y_i\overset{\mathrm{i.i.d.}}{\sim}\mathcal{F}$, where $\mathbb{E}[y_i^2\mid\sigma_\epsilon,\delta]<\infty$, $\mathbb{E}[y_i\mid\sigma_\epsilon,\delta]=\sigma_\epsilon\delta$, and $\mathrm{Var}(y_i\mid\sigma_\epsilon,\delta)=\sigma_\epsilon^2>0$, for $i=1,\dotsb,n$. The JZS prior-constructed Bayes factor for a one-sample $t$-test manifests the property of model selection consistency.
+	\begin{equation*}
+		\plim_{n\to\infty}\mathit{BF}_{10}=
+		\begin{cases}
+			\ 0, & \ \text{if}\ \delta=0, \\ 
+			\ \infty, & \ \text{if}\ \delta\neq0.
+		\end{cases}
+	\end{equation*}
+\end{theorem}
+The proof is provided in \ref{app3}.
+
+%====================================================
+
+\subsection{Bayesian one-way rANOVA}
+\label{sec4.5}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Simulation 3 continued/Figure 5/Figure 5.png}
+	\caption{Boxplots of Bayes factors (natural logarithm scale) for a one-way repeated-measures design with 100 participants across two effect sizes (ES: null, positive medium) and eight cases based on the data-generating distributions of random intercepts and residuals. The dashed lines indicate Bayes factors of 1/3 and 3, representing moderate evidence against and for an effect, respectively. EMD = earth mover's distance, quantifying divergence between distributions. Each boxplot contains 200 data points.}\label{fig5}
+\end{figure}
+
+In the frequentist framework, the paired $t$-test and one-way rANOVA with two conditions yield identical $p$-values. However, this equivalence is not achieved for Bayes factors in the `\textit{BayesFactor}' package due to differences in model specifications for participant-specific random effects. In particular, the paired $t$-test subtracts out these effects. Despite model differences, the results broadly lead to the same conclusions \citep[see vignettes `Prior checks' in][]{morey_bayesfactor_2024}. Although the observed sensitivity of the Bayes factor for paired $t$-tests was unlikely to be attributable to differences in random-effects specifications, we conducted an additional set of simulations for a one-sample design using Bayesian one-way rANOVA with two conditions. The model specification,
+\begin{equation*}
+	y_{jk}=\mu+\beta_j+s_k+\epsilon_{jk},
+\end{equation*}
+was a reduced form of Eq.~(\ref{eq:2}). The simulation settings mirrored those in Simulation 2, where random intercepts, residuals, or both exhibited skewness. In line with the patterns observed in Fig.~\ref{fig4}, we also found in Fig.~\ref{fig5} that the boxplot of the Bayes factor remains sensitive to skewed residuals when the alternative hypothesis is true, with increased sensitivity observed for negative skewness. The variability of the Bayes factor increases when random intercepts and residuals are asymmetric, with residuals having a greater impact.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusions and recommendations}
+\label{sec5}
+
+The statistical model underlying rANOVA incorporates both random intercepts and random slopes, resulting in a more complex marginal covariance structure than is assumed by a traditional ANOVA with blocking. The RIO Bayes factor approach implemented in the `\textit{BayesFactor}' package does not include random slopes and implicitly assumes compound symmetry. This limitation leads to model misspecification when the marginal covariance matrix of the data violates compound symmetry. Such violations often arise from individual differences in the direction and magnitude of treatment effects, and the variability associated with one factor differs from that of the other in a $2\times2$ repeated-measures design. If the random-slope variances are equal, compound symmetry is preserved. A critical consequence of not preserving compound symmetry is demonstrated in the CS-RIO paradox, where the RIO Bayes factor generates results that conflict with the rANOVA $p$-value in hypothesis testing for repeated-measures designs. Simulations further reveal that the RIO Bayes factor lacks large-sample consistency when homogeneity of covariance is not satisfied, undermining its validity for such designs.
+
+In contrast, the MRE Bayes factor approach available in JASP aligns closely with the rANOVA $p$-value for detecting an effect and effectively mitigates the CS-RIO paradox when covariances are heterogeneous. Even when the true data-generating process meets compound symmetry in the absence of random slopes, the overparameterized MRE method still produces reliable and consistent Bayes factors. Assuming that all individuals exhibit identical directions and magnitudes of effects may be unrealistic. Incorporating random slopes to account for participant-by-factor interactions improves the behavior of Bayes factors. The complexity of covariance structures in mixed-effects models for repeated-measures designs highlights the need to accommodate various dependencies within participants, which often arise from the hierarchical nature of the data and the temporal correlations among repeated observations. Psychological experiments, in particular, frequently yield data with covariance structures that go beyond typical assumptions, rendering the RIO Bayes factor analysis unsuitable due to its tendency to produce misleading and contradictory results. Therefore, we strongly recommend practitioners adopt the updated MRE Bayes factor method for analyzing repeated-measures data to ensure accurate and consistent inference (e.g., by using either the \textit{lmBF} function in the `\textit{BayesFactor}' package in \texttt{R}, or the JASP application).
+
+Random intercepts and random slopes are treated as nuisance parameters in the integrals defining the marginal likelihood and hence the Bayes factor. Numerous studies have demonstrated that the estimation of fixed effects in linear mixed-effects models remains unbiased even when the normality assumptions for random effects and residuals are violated. Building on these findings, our simulations and theoretical reasoning further confirm that Bayesian hypothesis testing, using the MRE Bayes factor, is consistent for two-way repeated-measures designs and one-sample designs when random effects and residuals are non-normal but have finite moments. This reflects a general property: the Bayes factor converges to the appropriate bounds for distinguishing between the null and alternative hypotheses in the large-sample limit. Model selection consistency can fail when moments are infinite, violating common regularity conditions in asymptotic theory. When the non-normal random effects and residuals are symmetric, the finite-sample distribution of the MRE Bayes factor demonstrates robustness, and the convergence rate of the Bayes factor is not expected to differ. If departures from normality are milder than those considered here, we would expect robustness to be even stronger. Put differently, Bayes factors, under the alternative hypothesis, exhibit greater variability in the presence of skewness that opposes the effect direction (e.g., a positive effect with negative skewness).
+
+We did not evaluate the SFR Bayes factors (the random slope is simultaneously dropped when its fixed factor is excluded), as the principle of marginality remains a topic of ongoing debate, particularly in the context of model selection for complex mixed-effects models. In a two-way repeated-measures design, the SFR Bayes factor for testing factor $B$ compares \texttt{A+S+A:S} to \texttt{A+B+S+A:S+B:S}. The reduced model enforces the principle of marginality for both fixed and random effects, omitting the participant-by-factor interaction term associated with factor $B$. To avoid Bayesian inferences that may contradict the $p$-value, it is crucial to clarify the true meaning of the hypothesis in these models and ensure its interpretation aligns with the research objectives. In the case above, for example, the null model assumes that factor $B$ has no `effect', as its fixed effect is zero and it is absent in all participants.
+
+The prior serves as a weighting function over the parameter space when computing the marginal likelihood. The integration process is the mechanism through which the Bayes factor formalizes parsimony: models that spread prior mass over parameter values that predict the data poorly are penalized unless the data concentrate support in a comparatively small region. Sensitivity to the prior is a structural feature of Bayes factors, reflecting the fact that they compare models on their prior predictive performance. Under model misspecification, sensitivity can be more pronounced because the best-fitting parameter values may lie in regions of low prior density. In such cases, the Bayes factor can change materially under alternative, yet still defensible, prior specifications. A limitation of the present work is that we do not evaluate whether the robustness results reported here depend on the use of the JZS prior. \citet{klauer_bayes_2025} argue that the JZS default prior has two undesirable features: under the alternative, it makes the null value the single most likely effect, and it assigns nontrivial mass to large effects. They therefore propose two alternatives—effect-size priors and moment priors—that retain computational convenience and desirable formal properties, while placing less weight on extreme effects and shifting prior mass away from the null under the alternative. In future work, we will examine how prior specification interacts with model misspecification in shaping Bayes factor robustness, and we will situate our recommendations alongside recent proposals for alternative priors.
+
+In the online supplementary materials, we explored an alternative approach to modeling complex marginal covariance structures in repeated-measures designs by reframing random intercepts and slopes within the residual covariance structure. Specifically, we represented the within-participant model as a between-participants model augmented with an alternative covariance structure. We adopted an inverse-Wishart prior—a conjugate prior commonly used in Gaussian hierarchical linear models—for the residual covariance matrix of a multivariate normal distribution \citep{chung_weakly_2015,liu_comparison_2016,zhang_note_2021}. However, this approach encountered significant computational challenges, particularly poor convergence properties, which limited its efficiency and practicality. Moving forward, it would be valuable to explore alternative priors or parameterizations that could improve computational stability and make Bayesian methods more practical for these types of analyses.
+
+Although our focus has primarily been on repeated-measures designs, the consistency of model selection and distributional behavior of Bayes factors under misspecified parametric or semiparametric models is of broader interest. We will explore this topic more generally in future work. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section*{CRediT authorship contribution statement}
+
+\textbf{Zhengxiao Wei:} Writing – review \& editing, Writing – original draft, Methodology, Data curation, Visualization, Formal analysis. \textbf{Farouk S.~Nathoo:} Writing – review \& editing, Supervision, Methodology, Formal analysis, Conceptualization. \textbf{Michael E.~J.~Masson:} Writing – review \& editing, Supervision, Methodology, Formal analysis, Conceptualization.
+
+\section*{Acknowledgments}
+
+The first author is grateful to Daiqi Sun for providing computing resources for the simulation runs. We thank one anonymous referee for constructive comments that led us to strengthen the simulation studies, including the inclusion Bayes factors, infinite moments, and statistical distance measures. We also thank a second anonymous referee for enhancing the psychological interpretation and suggesting consideration of alternative priors. Finally, we thank both anonymous referees for helpful remarks on the principle of marginality.
+
+\section*{Funding }
+
+This work was supported by discovery grants to Farouk S.~Nathoo (RGPIN-04044-2020) from the Natural Sciences and Engineering Research Council.
+
+\section*{Data availability}
+
+The data used in the analyses are available via the Open Science Framework at \url{https://osf.io/y6k8x/}.
+
+\section*{Code availability}
+
+All \texttt{R} code is available via the Open Science Framework at \url{https://osf.io/y6k8x/}.
+
+\section*{Declaration of competing interest}
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+%% The Appendices part is started with the command \appendix;
+%% appendix sections are then done as normal sections
+\appendix
+\section{General form of the marginal variance-covariance matrix}
+\label{app1}
+
+The following two statements for the correlated $d_j$'s are equivalent:
+\begin{enumerate}
+	\item $d_j\sim\mathcal{N}(0,\sigma_d^2)$ for $j=1,\dotsb,b\geqslant2$ subject to the constraint $\textstyle\sum_{j=1}^b d_j=0$;
+	\item $d_k^\star\overset{\mathrm{i.i.d.}}{\sim}\mathcal{N}(0,\tau_d^2)$ for $k=1,\dotsb,b-1$ with the conditions $(d_1^\star,\dotsb,d_{b-1}^\star)^\top=\mathbf{Q}_b^\top(d_1,\dotsb,d_{b})^\top$ and $\mathbf{I}_b-b^{-1}\mathbf{J}_b=\mathbf{Q}_b\ \!\mathbf{Q}_b^\top$.
+\end{enumerate}
+
+A linear combination $\textstyle\sum_{j=1}^b d_j C_{jk}$ defines a contrast if $\textstyle\sum_{j=1}^b C_{jk}=0$. Two contrasts are said to be orthogonal if $\textstyle\sum_{j=1}^b C_{jk}C_{jk^\prime}=0$ for $b>2$ and $k\neq k^\prime$. Additionally, orthogonal contrasts are orthonormal if $\textstyle\sum_{j=1}^b C_{jk}^2=1$. Let $\mathbf{Q}_b=(C_{jk})$ denote a contrast matrix of size $b\times(b-1)$, such that $(d_1^\star,\dotsb,d_{b-1}^\star)^\top=\mathbf{Q}_b^\top(d_1,\dotsb,d_{b})^\top$ and $(d_1,\dotsb,d_{b})^\top=\mathbf{Q}_b\ (d_1^\star,\dotsb,d_{b-1}^\star)^\top$. For example, Helmert contrasts of one kind yield $\mathbf{Q}_2^\top=(-\sqrt{2}/2,\ \!\sqrt{2}/2)$ when $b=2$, and
+\begin{equation*}
+	\mathbf{Q}_3^\top=\begin{pmatrix} -\sqrt{6}/3 & \sqrt{6}/6 & \sqrt{6}/6 \\ 0 & -\sqrt{2}/2 & \sqrt{2}/2 \end{pmatrix}
+\end{equation*}
+when $b=3$. In sum, the projection matrices originally introduced in Eqs.~(\ref{eq:6}) and (\ref{eq:7}) within the Bayesian framework serve to facilitate the sum-to-zero constraint on the random slopes, a defining feature of the restricted model presented in Eq.~(\ref{eq:2}).
+
+The marginal variance-covariance matrix for the conditions $y_{11},\dotsb,y_{a1}$, $\dotsb,y_{1b},\dotsb,y_{ab}$ of a participant in an $a\times b$ repeated-measures design, based on the linear mixed-effects model, is given by
+\begin{align*}
+	\boldsymbol{\Sigma}_{ab}
+	&=
+	\sigma_\epsilon^2\mathbf{I}_{ab}
+	+\sigma_s^2\mathbf{J}_{ab}
+	+\tau_{\alpha s}^2\mathbf{J}_b\otimes\big(\mathbf{Q}_{a}\mathbf{Q}_{a}^\top\big)
+	+\tau_{\beta s}^2\big(\mathbf{Q}_{b}\mathbf{Q}_{b}^\top\big)\otimes\mathbf{J}_a \\
+	&\quad+\tau_{\alpha\beta s}^2\big(\mathbf{Q}_{b}\mathbf{Q}_{b}^\top\big)\otimes\big(\mathbf{Q}_{a}\mathbf{Q}_{a}^\top\big) \\
+	&=
+	\sigma_\epsilon^2\mathbf{I}_{ab}
+	+\sigma_s^2\mathbf{J}_{ab}
+	+\tau_{\alpha s}^2\mathbf{J}_b\otimes\big(\mathbf{I}_a-a^{-1}\mathbf{J}_a\big)
+	+\tau_{\beta s}^2\big(\mathbf{I}_b-b^{-1}\mathbf{J}_b\big)\otimes\mathbf{J}_a \\
+	&\quad+\tau_{\alpha\beta s}^2\big(\mathbf{I}_b-b^{-1}\mathbf{J}_b\big)\otimes\big(\mathbf{I}_a-a^{-1}\mathbf{J}_a\big) \\
+	&=\text{sum of compound symmetry matrices} \\
+	&\quad+(\tau_{\alpha s}^2-b^{-1}\tau_{\alpha\beta s}^2)\mathbf{J}_b\otimes\mathbf{I}_a +
+	(\tau_{\beta s}^2-a^{-1}\tau_{\alpha\beta s}^2)\mathbf{I}_b\otimes\mathbf{J}_a
+\end{align*}
+Here, $\tau_{\alpha s}^2$, $\tau_{\beta s}^2$, and $\tau_{\alpha\beta s}^2$ denote the random-slope variances for the \textit{projected} factor $A$, $B$, and their interaction, respectively. The corresponding original variances are $\sigma_{\alpha s}^2=\tau_{\alpha s}^2\left(1-a^{-1}\right)$, $\sigma_{\beta s}^2=\tau_{\beta s}^2\left(1-b^{-1}\right)$, and $\sigma_{\alpha\beta s}^2=\tau_{\alpha\beta s}^2\left(1-a^{-1}\right)\left(1-b^{-1}\right)$. This matrix satisfies the following properties:
+\begin{enumerate}[label=(\alph*)]
+	\item It is always positive semi-definite.
+	\item It contains only one unique variance term and three unique covariance terms.
+	\item It always exhibits sphericity when $a>2$ or $b>2$.
+	\item It exhibits compound symmetry if and only if $\tau_{\alpha s}^2-b^{-1}\tau_{\alpha\beta s}^2=\tau_{\beta s}^2-a^{-1}\tau_{\alpha\beta s}^2=0$.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Skewed-$t$ distribution}
+\label{app2}
+
+The probability density function for the skewed Student-$t$ distribution is given by
+\begin{equation*}
+	f_X(x\mid\mu,\ \sigma,\ \nu,\ \xi)=\frac{1}{\sqrt{\nu}\ \text{B}(1/2,\ \!\nu/2)}\left(1+\frac{z^2}{\nu}\right)^{-\frac{\nu+1}{2}}\cdot a\cdot\sqrt{\frac{\nu}{\nu-2}}\cdot\frac{2}{(\xi+1/\xi)\ \sigma},
+\end{equation*}
+where $z=y\xi^{-\mathrm{sign}(y)}\sqrt{\frac{\nu}{\nu-2}}$, $y=\frac{x-\mu}{\sigma}a+b$, $a^2=(1-M^2)(\xi^2+1/\xi^2)+2M^2-1$ and $a>0$, $b=(\xi-1/\xi)M$, and $M=\frac{2\sqrt{\nu-2}}{(\nu-1)\ \text{B}(1/2,\ \!\nu/2)}$. The location parameter is $\mu$, and the scale parameter is $\sigma>0$. The shape parameter (degrees of freedom) is $\nu>2$. The skewness parameter in this case is $\xi>0$, where $\xi>1$ indicates positive skewness, $0<\xi<1$ indicates negative skewness, and $\xi=1$ corresponds to a symmetric distribution.
+
+The direction of skewness can materially affect the finite-sample behavior of common test statistics. For a positive true effect ($\mu>0$), a right-skewed distribution produces more low realizations with occasional large values, which can depress the observed effect in a given sample. Conversely, a left-skewed distribution with the same positive mean produces more high realizations with occasional small values, tending to inflate the observed effect. As the sample size grows, these differences fade.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Proof of Theorem 1}
+\label{app3}
+
+{\footnotesize
+\begin{equation*}
+	\mathit{BF}_{10}=\ (2\pi)^{-\frac{1}{2}}\gamma\left(1+\frac{t^2}{n-1}\right)^{\frac{n}{2}}\int_0^\infty(1+ng)^{-\frac{1}{2}}\left(1+\frac{t^2}{(1+ng)(n-1)}\right)^{-\frac{n}{2}}\!g^{-\frac{3}{2}}e^{-\frac{\gamma^2}{2g}}\ \!\mathrm{d}g
+\end{equation*}
+}
+
+The JZS prior-constructed Bayes factor for one-sample $t$-tests is given in an analytic form in terms of the $t$-statistic ($t=\sqrt{n}\bar{y}/s$) and sample size $n$ \citetext{%
+	\citealp[p.~24]{ly_harold_2016}; %
+	\citealp[p.~237]{rouder_bayesian_2009}; %
+	\citealp[p.~360]{rouder_default_2012}; %
+	\citealp[p.~1762]{wei_investigating_2023}}.
+Here, $\gamma$ is a fixed scale hyperparameter that controls the variability of effect sizes. Note that all terms in the integrand are non-negative, $\bar{y}$ denotes the sample mean, and $s$ denotes the sample standard deviation.
+
+We first note that $\sqrt{n}(\bar{y}-\sigma_\epsilon\delta)/\sigma_\epsilon\overset{d}{\to}\mathcal{N}(0,1)$ by the central limit theorem and $s\overset{p}{\to}\sigma_\epsilon$ by the weak law of large numbers, given a finite second moment. Then, it follows that $\sqrt{n}(\bar{y}-\sigma_\epsilon\delta)/s\overset{d}{\to}\mathcal{N}(0,1)$ by the continuous mapping theorem.
+
+\textbf{Case 1}: $\mathcal{H}_0$ is true ($\delta=0$). The test statistic, $t^2\overset{d}{\to}\chi_1^2$, is stochastically bounded, satisfying $t^2=\mathcal{O}_p(1)$.
+
+\begin{align*}
+	\mathit{BF}_{10}
+	&\leqslant\ (2\pi)^{-\frac{1}{2}}\gamma\left(1+\frac{t^2}{n-1}\right)^{\frac{n}{2}}\int_0^\infty(0+ng)^{-\frac{1}{2}}\left(1+0\right)^{-\frac{n}{2}}\!g^{-\frac{3}{2}}e^{-\frac{\gamma^2}{2g}}\ \!\mathrm{d}g \\
+	&=(2\pi)^{-\frac{1}{2}}\gamma\left(1+\frac{t^2}{n-1}\right)^{(n-1)\ \!\cdot\ \!\frac{1}{2}}
+	\left(1+\frac{t^2}{n-1}\right)^{\frac{1}{2}}{\frac{2}{\gamma^2}\ \!n^{-\frac{1}{2}}} \\
+	&\leqslant\sqrt{\frac{2}{\pi\gamma^2}}\exp\left\{\frac{t^2}{2}\right\}
+	\left(1+\frac{t^2}{n-1}\right)^{\frac{1}{2}}n^{-\frac{1}{2}} \\
+	&=\sqrt{\frac{2}{\pi\gamma^2}}\ \ \!\mathcal{O}_p(1)\ \ \!\mathcal{O}_p(1)\ \ \!n^{-\frac{1}{2}}\ \!\overset{p}{\to}\ \!0
+	\quad\text{as}\quad n\to\infty.
+\end{align*}
+
+So that $\displaystyle\plim_{n\to\infty}\mathit{BF}_{10}=0$ under $\mathcal{H}_0$.
+
+\textbf{Case 2}: $\mathcal{H}_1$ is true ($\delta\neq0$). $t-\sqrt{n}\sigma_\epsilon\delta/s\overset{d}{\to}\mathcal{N}(0,1)$, and the $t$-statistic grows without bound in probability, following $t^2=\mathcal{O}_p(n)$.
+
+\begin{align*}
+	\mathit{BF}_{10}
+	&=(2\pi)^{-\frac{1}{2}}\gamma\int_0^{\infty}\frac
+	{(1+ng)^{\frac{n-1}{2}}(n-1+t^2)^{\frac{n}{2}}}
+	{\left((1+ng)(n-1)+t^2\right)^{\frac{n}{2}}}
+	g^{-\frac{3}{2}}e^{-\frac{\gamma^2}{2g}}\ \!\mathrm{d}g \\
+	&=(2\pi)^{-\frac{1}{2}}\gamma\int_0^{\infty}\frac
+	{(1+ng)^{\frac{n-1}{2}}\left(\mathcal{O}(n)+\mathcal{O}_p(n)\right)^{\frac{n}{2}}}
+	{\left(\mathcal{O}(n^2)g+\mathcal{O}_p(n)\right)^{\frac{n}{2}}}
+	g^{\frac{n}{2}-2}e^{-\frac{\gamma^2}{2g}}\ \!\mathrm{d}g \\
+	&\geqslant(2\pi)^{-\frac{1}{2}}\gamma\int_1^2\frac
+	{\mathcal{O}(n^{\frac{n-1}{2}})\left(\mathcal{O}(n)+\mathcal{O}_p(n)\right)^{\frac{n}{2}}}
+	{\left(\mathcal{O}(n^2)\cdot2+\mathcal{O}_p(n)\right)^{\frac{n}{2}}}
+	g^{\frac{n}{2}-2}e^{-\frac{\gamma^2}{2g}}\ \!\mathrm{d}g \\
+	&=(2\pi)^{-\frac{1}{2}}\gamma\int_1^2 \frac{\mathcal{O}_p(n^n)}{\mathcal{O}_p(n^n)}\ \!n^{-\frac{1}{2}}
+	g^{\frac{n}{2}-2}e^{-\frac{\gamma^2}{2g}}\ \!\mathrm{d}g \\
+	&\geqslant(2\pi)^{-\frac{1}{2}}\gamma\ \!\mathcal{O}_p(1)\ \!n^{-\frac{1}{2}}e^{-\frac{\gamma^2}{2}}\int_1^2 g^{\frac{n}{2}-2}\ \!\mathrm{d}g \\
+	&=(2\pi)^{-\frac{1}{2}}\gamma\ \!\mathcal{O}_p(1)\ \!e^{-\frac{\gamma^2}{2}}\cdot\frac{2^{\frac{n}{2}}-2}{\sqrt{n}(n-2)} \\
+	&=(2\pi)^{-\frac{1}{2}}\gamma\ \!\mathcal{O}_p(1)\ \!e^{-\frac{\gamma^2}{2}}\cdot\frac{\mathcal{O}(2^{\frac{n}{2}})}{\mathcal{O}(n^{\frac{3}{2}})}\ \!\overset{p}{\to}\ \!\infty
+	\quad\text{as}\quad n\to\infty.
+\end{align*}
+
+So that $\displaystyle\plim_{n\to\infty}\mathit{BF}_{10}=\infty$ under $\mathcal{H}_1$.
+
+\hfill$\blacksquare$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Supplementary figures}
+\label{app4}
+
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{D\arabic{figure}}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Appendix D/Figure D1.png}
+	\caption{Line charts of (a) the median and (b) the IQR of MRE log Bayes factors for testing the main effect of interest in a $2\times2$ repeated-measures design across three numbers of participants, three numbers of trials, four effect sizes, and eight cases based on the data-generating distributions of random effects and residuals. MRE = maximal set of random effects; IQR = interquartile range. Note that the magnitude of the differences should be assessed based on the exponential scale.}\label{figD1}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Appendix D/Figure D2.png}
+	\caption{Line charts of (a) the median and (b) the IQR of log Bayes factors for paired $t$-tests across four numbers of participants, two effect sizes, and eight cases based on the data-generating distributions of residuals. IQR = interquartile range. Note that the magnitude of the differences should be assessed based on the exponential scale.}\label{figD2}
+\end{figure}
+
+\begin{figure}[]
+	\centering
+	\includegraphics[width=\textwidth]{~/Downloads/osfstorage-archive/Appendix D/Figure D3.png}
+	\caption{Boxplots of Bayes factors (natural logarithm scale) for paired $t$-tests with 12 participants across two effect sizes (ES: null, positive medium) and eight cases based on the data-generating distributions of residuals. The dashed lines indicate Bayes factors of 1/3 and 3, representing moderate evidence against and for an effect, respectively. EMD = earth mover's distance, quantifying divergence between distributions. Each boxplot contains 200 data points.}\label{figD3}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+%% If you have bib database file and want bibtex to generate the
+%% bibitems, please use
+%%
+\bibliographystyle{elsarticle-harv} 
+\bibliography{bibliography.bib}
+
+\end{document}
+
+\endinput
+%%
+%% End of file `elsarticle-template-harv.tex'.
+
+

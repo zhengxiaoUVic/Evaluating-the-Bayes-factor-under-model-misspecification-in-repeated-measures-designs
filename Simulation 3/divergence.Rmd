@@ -1,0 +1,3582 @@
+---
+title: "Bayes Factor under Model Misspecification"
+subtitle: "Simulation 3: Bayesian *t*-Tests"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE) # roughly 11 minutes of render time
+
+if(!require(FNN)) {install.packages("FNN")} # KL divergence
+if(!require(fGarch)) {install.packages("fGarch")} # skewed-t
+if(!require(EnvStats)) {install.packages("EnvStats")} # bimodal
+if(!require(BayesFactor)) {install.packages("BayesFactor")}
+if(!require(statip)) {install.packages("statip")} # Hellinger
+if(!require(transport)) {install.packages("transport")} # EMD
+if(!require(ggplot2)) {install.packages("ggplot2"); library(ggplot2)}
+if(!require(plotly)) {install.packages("plotly"); library(plotly)}
+if(!require(remotes)) {install.packages("remotes")}
+if(!require(klippy)) {remotes::install_github("rlesur/klippy")}
+```
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy()
+```
+============================================================================================================ 
+<https://osf.io/y6k8x/overview>
+
+# {.tabset .tabset-fade .tabset-pills}
+## 0. Divergence {.tabset .tabset-fade}
+
+&nbsp;
+
+### Kullback–Leibler Divergence
+
+&nbsp;
+
+The **Kullback–Leibler (KL) divergence**, also known as relative entropy, measures the asymmetric statistical *distance* between two probability measures, which can be either probability mass functions (PMFs) or probability density functions (PDFs), across the same sample space.
+
+\[
+D_{\text{KL}}(P\parallel Q):=\mathbb{E}_{X\sim p(x)}\left[\log\frac{p(X)}{q(X)}\right]=
+\begin{cases}
+  \text{$\ \sum_{x\in\mathcal{X}}P(x)\cdot\log\frac{P(x)}{Q(x)}$} \\ 
+  \\
+  \text{$\ \int_{\mathcal{X}} p(x)\cdot\log\frac{p(x)}{q(x)}\text{d}x$}
+\end{cases} 
+\]
+
+&nbsp;
+
+Typically, $P$ may represent the posterior, the "true" distribution of data or observations, or a precisely calculated theoretical distribution. Distribution $Q$ may represent a prior, a theory, a model, a description or an approximation of $P$.
+
+$D_{\text{KL}}(P\parallel Q)$ measures how $P$ is different from the *reference* $Q$. <span style="color:gray">Confusingly, in different contexts, $D_{\text{KL}}(P\parallel Q)$ may be interpreted as how $Q$ is different from the *reference* $P$, using the same formula.</span>
+
+In certain contexts, it is a measure of the information lost when $Q$ is used to approximate or dominate $P$. Note that the units used in this calculation are called *nats*, which is short for "natural units of information". When using a base-2 logarithm, the KL divergence is expressed in terms of bits rather than nats.
+
+In the objective Bayesian framework, Bernardo's reference prior is designed to maximize the expected KL divergence between the posterior and the prior distributions. This approach allows the data to exert maximum influence on the posterior estimates.
+
+&nbsp;
+
+* $D_{\text{KL}}(P\parallel Q)\geqslant 0,\quad\forall P,Q\quad$ (Gibbs' inequality)
+* $D_{\text{KL}}(P\parallel Q)=0\quad\Leftrightarrow\quad P=Q$, almost surely
+* $D_{\text{KL}}(P\parallel Q)\neq D_{\text{KL}}(Q\parallel P)$
+
+&nbsp;
+
+<font size="5"> Example 1: <br /> The KL Divergence from a $t$-Distribution to a Standard Normal Distribution </font>
+```{r N-t, fig.height=4, fig.width=5.5}
+curve(dnorm, -3, 3, lwd=2, xlab="x", ylab="Density", main="Probability Density Functions")
+curve(dt(x, df=5), lwd=2, lty=2, col="red", add=T)
+curve(dt(x, df=20), lwd=2, lty=3, col="blue", add=T)
+legend("topright",c("Normal","Student t(5)","Student t(20)"),col=c("black","red","blue"),lty=1:3,lwd=2,bty="n")
+```
+
+We can compute the KL divergence between two PDFs, given two samples from their respective populations. However, the KL divergence is not directly computed from the samples themselves, but rather from the estimated PDFs, e.g., using smoothing methods.
+
+Among these methods, the $k$-nearest neighbors framework allows to estimate the consistent and asymptotically unbiased entropy of a PDF directly from the data set, i.e., without explicitly estimating the PDF (Boltz, Debreuve, & Barlaud, [2007](https://doi.org/10.1109/WIAMIS.2007.53), Eq. 7).
+
+The *KL.divergence* function from the "*FNN*" package returns a vector of $k$ values, using 1 to $k$ nearest neighbors, respectively (you may encounter <span style="color:red">negative</span> values).
+
+```{r KL-N-t, fig.height=3.5, fig.width=10}
+nS <- 500; nK <- 10
+set.seed(277)
+sample_norm <- rnorm(nS)
+sample_t5 <- rt(nS, df=5)
+round(FNN::KL.divergence(sample_norm, sample_t5, k=5), 3)
+round(FNN::KL.divergence(sample_norm, sample_t5, k=nK), 3)
+
+sample_t20 <- rt(nS, df=20)
+round(FNN::KL.divergence(sample_norm, sample_t20, k=nK), 3)
+
+sample_rep <- rnorm(nS)
+round(FNN::KL.divergence(sample_norm, sample_rep, k=nK), 3)
+
+ggplot(data.frame("x"=c(sample_norm, sample_rep, sample_t5, sample_t20),
+                  "Model"=factor(rep(c("Normal",
+                                       "Normal (rep)",
+                                       "Student t(5)",
+                                       "Student t(20)"),each=nS))),
+       aes(x))+
+  geom_histogram(binwidth=0.3,fill="white",color="black")+
+  geom_rug(alpha=.1)+
+  facet_grid(. ~ Model)+
+  geom_vline(xintercept=0, color="purple")+
+  labs(x="Sample", y="Count", title="Histograms")+
+  theme_classic()
+```
+
+&nbsp;
+
+<font size="5"> Example 2: <br /> The KL Divergence Between the Exponential Distributions </font>
+
+$f_X(x;\lambda)=\lambda e^{-\lambda x},\quad x\geqslant 0$
+
+$D_{\text{KL}}(f_X(x;\lambda_1)\parallel f_X(x;\lambda_2))=\lambda_1\int_0^\infty\left(\ln\frac{\lambda_1}{\lambda_2}\cdot e^{-\lambda_1 x}-(\lambda_1-\lambda_2)x\cdot e^{-\lambda_1 x}\right)\text{d}x=\ln\frac{\lambda_1}{\lambda_2}+\frac{\lambda_2}{\lambda_1}-1$
+
+```{r KL-exp, fig.height=4.5, fig.width=10}
+KL_exp <- function(nS=10000, nK=5, seed=1000, ...) {
+  #' Example code of ?KL.divergence
+  nS <- nS; nK <- nK; set.seed(seed)
+  X <- rexp(nS, rate=0.2)
+  Y <- rexp(nS, rate=0.4) #sample sizes need not be equal
+  KL_div <- FNN::KL.divergence(X, Y, k=nK)
+  KL_div <- KL_div[KL_div < Inf & KL_div > -Inf]
+  plot(KL_div, xlab=paste0("Number of Nearest Neighbors 1–", nK), ylab="KL Divergence Estimate",
+       main="KL Divergence of Exp(0.2) from Exp(0.4)", sub=paste0("Sample Size = ", nS), ...)
+  abline(h=1-log(2), col="red")
+  # Theoretical divergence = log(0.2/0.4)+(0.4/0.2)-1 = 1-log(2) = 0.3068528
+  
+  # cat("The overall KL divergence of Exp(0.2) from Exp(0.4) is", mean(KL_div),
+  #     "nats, \ngiven", nK, "nearest neighbors and", nS, "samples.")
+}
+
+par(mfrow=c(1,2))
+KL_exp(nK=100, ylim=c(0.05, 0.35))
+KL_exp(nS=1000, nK=100, ylim=c(0.05, 0.35))
+```
+
+&nbsp;
+
+Boltz, Debreuve, and Barlaud ([2007](https://doi.org/10.1109/WIAMIS.2007.53), p. 3) recommend choosing $k=\sqrt{N}$, a value that, however, does not yield satisfactory results in the examples presented here. Indeed, the plots may not display any clear guidelines.
+
+&nbsp;
+&nbsp;
+
+<font size="5"> The KL Divergence Between the Univariate Normal Distributions. </font>
+
+$D_{\text{KL}}(\mathcal{N}(\mu_1,\sigma_1^2)\parallel\mathcal{N}(\mu_2,\sigma_2^2))=\ln\frac{\sigma_2}{\sigma_1}+\frac{\sigma_1^2+(\mu_1-\mu_2)^2}{2\sigma_2^2}-\frac{1}{2}$
+
+```{r KL-norm, fig.height=4.5, fig.width=10}
+KL_norm <- function(nS=10000, nK=5, seed=1000, ...) {
+  nS <- nS; nK <- nK; set.seed(seed)
+  X <- rnorm(nS)
+  Y <- rnorm(nS) #sample sizes need not be equal
+  KL_div <- FNN::KL.divergence(X, Y, k=nK)
+  KL_div <- KL_div[KL_div < Inf & KL_div > -Inf]
+  plot(KL_div, xlab=paste0("Number of Nearest Neighbors 1–", nK), ylab="KL Divergence Estimate",
+       main="KL Divergence of Two N(0,1)", sub=paste0("Sample Size = ", nS), ...)
+  abline(h=0, col="red")
+}
+
+par(mfrow=c(1,2))
+KL_norm(nK=100, ylim=c(-0.04, 0.02))
+KL_norm(nS=1000, nK=100, ylim=c(-0.04, 0.02))
+```
+
+&nbsp;
+&nbsp;
+
+<font size="4"> Discussions </font>
+
+"[FNN] miserably fails sometimes, but it works in simple cases and with large samples <br /> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (for samples smaller than 100 it can behave erratically)." [Ref.](https://stats.stackexchange.com/q/481947)
+
+"Even for large datasets, [the KL divergence estimate] jumps around when the number of nearest neighbors is small." [Ref.](https://stackoverflow.com/a/19184160)
+
+"This study is far from exhaustive, and timings are sensitive to implementation details. Please take with a pinch of salt." [Ref.](https://github.com/nhartland/KL-divergence-estimators?tab=readme-ov-file)
+
+&nbsp;
+
+<a href="#top"> scroll to top </a>
+
+&nbsp;
+&nbsp;
+
+
+### Hellinger Distance
+
+&nbsp;
+
+The square of the **Hellinger distance** between two PDFs $P$ and $Q$ is loosely defined as
+
+\begin{equation*}
+  H^2(P,Q)=\frac{1}{2}\int_{\mathcal{X}}\left(\sqrt{p(x)}-\sqrt{q(x)}\right)^2\text{d}x.
+\end{equation*}
+
+* $0\leqslant H(P,Q)\leqslant 1$
+
+&nbsp;
+
+<font size="5"> Example 2 (Continued): <br /> The Hellinger Distance Between $\text{Exp}(\lambda_1)$ and $\text{Exp}(\lambda_2)$ </font>
+
+$H(f_X(x;\lambda_1),\ f_X(x;\lambda_2))=\sqrt{1-\frac{2\sqrt{\lambda_1\lambda_2}}{\lambda_1+\lambda_2}}$
+
+Use the "*statip*" R package.
+
+```{r statip-1}
+rate1 <- 0.2; rate2 <- 0.4
+set.seed(277)
+x <- rexp(nS, rate=rate1) #nS = 500
+y <- rexp(nS, rate=rate2) #sample sizes need not be equal
+statip::hellinger(x, y, 0, Inf)
+sqrt(1-2*sqrt(rate1*rate2)/(rate1+rate2)) #the theoretical Hellinger distance value
+```
+
+&nbsp;
+&nbsp;
+
+<font size="5"> The Hellinger Distance Between $\mathcal{N}(\mu_1,\sigma_1^2)$ and $\mathcal{N}(\mu_2,\sigma_2^2)$. </font>
+
+$H(\mathcal{N}(\mu_1,\sigma_1^2),\ \mathcal{N}(\mu_2,\sigma_2^2))=\sqrt{1-\sqrt{\frac{2\sigma_1\sigma_2}{\sigma_1^2+\sigma_2^2}}\exp{\left\{-\frac{1}{4}\frac{(\mu_1-\mu_2)^2}{\sigma_1^2+\sigma_2^2}\right\}}}$
+
+```{r statip-2}
+set.seed(277)
+round(replicate(10, statip::hellinger(rnorm(nS), rnorm(nS), -Inf, Inf)), 3) # H(two N(0,1)) = 0
+```
+
+&nbsp;
+
+<font size="4"> Discussion </font>
+
+"[To produce some Hellinger-distance like measure of discrepancy between the two empirical distributions,] the answer is sensitive to the choice of bandwidth [with kernel density estimates]." [Ref.](https://stats.stackexchange.com/a/438972)
+
+&nbsp;
+
+<a href="#top"> scroll to top </a>
+
+&nbsp;
+&nbsp;
+
+
+### Kolmogorov–Smirnov Statistic
+
+&nbsp;
+
+The **Kolmogorov–Smirnov (KS) test** is a nonparametric test that addresses two question:
+
+* How likely is it that we would see a collection of samples like this if they were drawn from that probability distribution?
+
+* How likely is it that we would see two sets of samples like this if they were drawn from the same (but unknown) probability distribution?
+
+&nbsp;
+&nbsp;
+
+<font size="5"> Comparing a Sample to a Theoretical Distribution </font>
+
+One-Sample KS Statistic
+
+\begin{equation*}
+  D_N:=\sup_x\lvert F_N(x)-F(x)\rvert
+\end{equation*}
+
+The largest vertical distance between the two cumulative distribution functions (CDFs) across $x$.
+
+$F_N(x)$ is the empirical CDF, which is a step function (right-continuous in "*ggplot2*" [by default](https://sape.inf.usi.ch/quick-reference/ggplot2/geom_step); `geom_step(direction="hv",...)`).
+
+```{r KS-1}
+set.seed(177); sample_t <- rt(500, df=5)
+ks.test(sample_t, "pnorm", mean=0, sd=1) #compare a t sample to N(0,1)
+# low statistical power?
+set.seed(177); round(replicate(10, ks.test(rt(500, df=5), "pnorm", mean=0, sd=1)$p.value), 3)
+
+set.seed(277); sample_unif <- runif(500)
+ks.test(sample_unif, "punif", min=0, max=1) #compare a uniform sample to U[0,1]
+# high false alarm rate?
+set.seed(277); round(replicate(10, ks.test(runif(500), "punif", min=0, max=1)$p.value), 3)
+```
+
+&nbsp;
+
+<font size="5"> Comparing Two Samples </font>
+
+Two-Sample KS Statistic
+
+\begin{equation*}
+  D_{N,M}:=\sup_x\lvert F_{1,N}(x)-F_{2,M}(x)\rvert
+\end{equation*}
+
+```{r KS-2}
+set.seed(377); sample_norm <- rnorm(500)
+ks.test(sample_t, sample_norm) #compare a t sample to a normal sample
+set.seed(377); round(replicate(10, ks.test(rt(500, df=5), rnorm(500))$p.value), 3)
+
+set.seed(477); sample_rep <- rnorm(500)
+ks.test(sample_rep, sample_norm) #compare two normal samples
+set.seed(477); round(replicate(10, ks.test(rnorm(500), rnorm(500))$p.value), 3)
+
+set.seed(577); sample_norm2 <- rnorm(500, mean=0.5)
+ks.test(sample_norm2, sample_norm) #compare two samples from N(0.5,1) and N(0,1)
+set.seed(577); round(replicate(10, ks.test(rnorm(500, mean=0.5), rnorm(500))$p.value), 3)
+```
+
+&nbsp;
+
+<a href="#top"> scroll to top </a>
+
+&nbsp;
+&nbsp;
+
+
+### Wasserstein 1-Distance
+
+&nbsp;
+
+The **Wasserstein 1-distance** is an [integral probability metric](https://en.wikipedia.org/wiki/Integral_probability_metric).
+
+\begin{equation*}
+  W_1(P,Q)=\sup_{f\in\mathcal{F}_L}\left\lvert\mathbb{E}_{X\sim P}[f(X)]-\mathbb{E}_{Y\sim Q}[f(Y)]\right\rvert,
+\end{equation*}
+
+where $\mathcal{F}_L$ is the class of 1-Lipschitz functions such that $\lvert f(x_1)-f(x_2)\rvert\leqslant\lvert x_1-x_2\rvert$ for $x_1,x_2\in\mathbb{R}$.
+
+* $P$ and $Q$ do not need to have the same support.
+
+* $\widehat{W}_1(P,Q)=W_1(P_n,Q_n)$, where $P_n$ and $Q_n$ are empirical probability measures based on samples.
+
+&nbsp;
+
+The Wasserstein 1-distance is also known as the [earth mover's distance](https://en.wikipedia.org/wiki/Earth_mover%27s_distance). It represents the minimum "cost" required to move the mass in one distribution to match the other distribution, where the cost is the product of the amount of mass moved and the distance it is moved.
+
+\begin{equation*}
+  W_1(P,Q)=\inf_{\gamma\in\Gamma(P,Q)}\mathbb{E}_{(X,Y)^\top\sim\gamma}[d(X,Y)],
+\end{equation*}
+
+where $\Gamma(P,Q)$ denotes the set of all joint distributions $\gamma$ whose marginals are $P$ and $Q$. In other words, $\gamma$ is a **coupling** of $P$ and $Q$. $d(X,Y)=\lvert X-Y\rvert$ in one dimension.
+
+&nbsp;
+
+<font size="5"> Example 2 (Continued): <br /> The Wasserstein 1-Distance Between $\text{Exp}(\lambda_1)$ and $\text{Exp}(\lambda_2)$ </font>
+
+$W_1(f_X(x;\lambda_1),\ f_X(x;\lambda_2))=\left\lvert\frac{1}{\lambda_1}-\frac{1}{\lambda_2}\right\rvert$
+
+Use the "*transport*" R package.
+
+```{r wasserstein1d-1}
+rate1 <- 0.2; rate2 <- 0.4
+set.seed(277)
+x <- rexp(nS, rate=rate1) #nS = 500
+y <- rexp(nS, rate=rate2) #sample sizes need not be equal
+transport::wasserstein1d(x, y)
+abs(1/rate1 - 1/rate2) #the theoretical Wasserstein 1-distance value
+```
+
+&nbsp;
+&nbsp;
+
+<font size="5"> The Wasserstein 1-Distance Between $\mathcal{N}(\mu_1,\sigma_1^2)$ and $\mathcal{N}(\mu_2,\sigma_2^2)$. </font>
+
+$W_1(\mathcal{N}(\mu_1,\sigma_1^2),\ \mathcal{N}(\mu_2,\sigma_2^2))=\lvert\mu_1-\mu_2\rvert+\lvert\sigma_1-\sigma_2\rvert$
+
+```{r wasserstein1d-2}
+set.seed(277)
+round(replicate(10, transport::wasserstein1d(rnorm(nS), rnorm(nS))), 3) # W1(two N(0,1)) = 0
+```
+
+&nbsp;
+
+<a href="#top"> scroll to top </a>
+
+&nbsp;
+&nbsp;
+
+
+## 1. Skewed $t$
+
+&nbsp;
+
+$X_1,\dotsb,X_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Y_1,\dotsb,Y_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Z_1,\dotsb,Z_N\overset{\text{i.i.d.}}{\sim}\mathcal{Q}(0,1)$, a non-normal distribution
+
+Read Section 7 first.
+
+&nbsp;
+
+### 1. Skew Student-$t$ Distribution
+
+$f_X(x\mid\mu,\ \sigma,\ \nu,\ \xi)=\frac{1}{\sqrt{\nu}\ \text{B}(1/2,\ \nu/2)}\left(1+\frac{z^2}{\nu}\right)^{-\frac{\nu+1}{2}}\cdot a\cdot\sqrt{\frac{\nu}{\nu-2}}\cdot\frac{2}{(\xi+1/\xi)\ \sigma}$
+
+&nbsp;
+
+$z=y\ \xi^{-\text{sign}(y)}\sqrt{\frac{\nu}{\nu-2}}$
+
+$y=\frac{x-\mu}{\sigma}a+b$
+
+$a^2=(1-M^2)(\xi^2+1/\xi^2)+2M^2-1$, $\quad a>0$
+
+$b=(\xi-1/\xi)M$
+
+$M=\frac{2\sqrt{\nu-2}}{(\nu-1)\ \text{B}(1/2,\ \nu/2)}$
+
+&nbsp;
+
+$\mu$: location parameter
+
+$\sigma>0$: scale parameter
+
+$\nu>2$: shape parameter (degrees of freedom)
+
+$\xi>0$: skewness parameter. $\xi>1$ right-skewed; $0<\xi<1$ left-skewed; $\xi=1$ symmetric
+
+[Source Code](https://github.com/cran/fGarch/blob/master/R/dist-sstd.R)
+
+&nbsp;
+&nbsp;
+
+Same population mean 0 and variance 1.
+
+```{r skewed-t, fig.height=4, fig.width=10}
+NSim <- 500 #number of replicates
+
+par(mfrow=c(1,2))
+
+curve(fGarch::dsstd(x, mean=0, sd=1, nu=4, xi=20), -3, 3,
+      lty=2, lwd=2, col="red", xlab="x", ylab="Density", main="Probability Density Functions")
+curve(fGarch::dsstd(x, mean=0, sd=1, nu=4, xi=1/20),
+      lty=3, lwd=2, col="blue", add=T)
+curve(dnorm, lwd=2, add=T)
+
+curve(fGarch::psstd(x, mean=0, sd=1, nu=4, xi=20), -3, 3,
+      lty=2, lwd=2, col="red", xlab="x", ylab="Probability", main="Cumulative Distribution Functions")
+curve(fGarch::psstd(x, mean=0, sd=1, nu=4, xi=1/20),
+      lty=3, lwd=2, col="blue", add=T)
+curve(pnorm, lwd=2, add=T)
+legend("bottomright",c("Right-Skewed","Left-Skewed","Normal"), 
+       col=c("red","blue","black"), lty=c(2,3,1), lwd=2, bty="n")
+```
+
+```{r skewed-t-sample, fig.height=4, fig.width=10}
+rSkew <- fGarch::rsstd(NSim, mean=0.5, sd=1, nu=4, xi=20)
+lSkew <- 1-rSkew # axial symmetry (left-skewed)
+
+par(mfrow=c(1,2))
+hist(rSkew, breaks=6, prob=T, col="white",
+     yaxt="n", ylab="", xlab="Random Deviates", main="Right-Skewed")
+hist(lSkew, breaks=6, prob=T, col="white",
+     yaxt="n", ylab="", xlab="Random Deviates", main="Mirroring")
+
+BayesFactor::ttestBF(rSkew, mu=0.5)
+BayesFactor::ttestBF(lSkew, mu=0.5)
+```
+
+```{r func, include=F}
+viz <- function(N, NSim, ES, SD=1, nu=4, sk=20, dist="skew", k=10, p.mix=.5, plot=1, interact=T, ...) {
+  #' Input -
+  #' N:         number of subjects
+  #' NSim:      number of replicates
+  #' ES:        effect size
+  #' SD:        error standard deviation
+  #' nu:        shape parameter (degrees of freedom) of the skewed t
+  #' sk:        skewness parameter of the skewed t
+  #' dist:      distribution that violates the normality,
+  #'              but has the same population mean and variance
+  #'            "skew" (default), a skewed t
+  #'            "unif", a continuous uniform
+  #'            "tri", a symmetric triangular
+  #'            "bim", a bimodal (symmetric when p.mix=0.5)
+  #'            "100sd", still a normal but 100 times the error standard deviation
+  #' k:         maximum number of nearest neighbors used in the KL divergence
+  #' p.mix:     weight of the second modal
+  #' plot:      visualizations
+  #'            1 (default), distributions of the Bayes factors
+  #'            2, distributions of p-values
+  #'            3, scatter plot of the p-values and the Bayes factors
+  #' interact:  TRUE (default), interactive; FALSE, base ECDF
+  #' Dependencies - BayesFactor, EnvStats, fGarch, FNN, ggplot2, plotly, statip
+  #' Output - visualizations
+  
+  computeBF <- function(data) {
+    #' Input -
+    #' data:    one sample
+    #' Output - the Bayes factor
+    set.seed(277)
+    bf <- BayesFactor::ttestBF(data)
+    if (BayesFactor::extractBF(bf)$error < 0.01) { #negligible Monte Carlo errors
+      BayesFactor::extractBF(bf)$bf
+    } else {return(NA)}
+  }
+  
+  BF <- BF_rep <- BF_vio <- pVal <- pVal_rep <- pVal_vio <- numeric(NSim)
+  for (i in 1:NSim) {
+    set.seed(i)
+    y0 <- rnorm(N, ES, SD)
+    pVal[i] <- t.test(y0)$p.value
+    BF[i] <- computeBF(y0)
+
+    set.seed(i-NSim)
+    y0_rep <- rnorm(N, ES, SD)
+    pVal_rep[i] <- t.test(y0_rep)$p.value
+    BF_rep[i] <- computeBF(y0_rep)
+    
+    set.seed(i+NSim)
+    if (dist=="skew") {
+      y1 <- fGarch::rsstd(N, mean=ES, sd=SD, nu=nu, xi=sk)
+      label <- "Skewed"
+      
+    } else if (dist=="unif") {
+      # mean = (a + b) / 2
+      # variance = (b - a)^2 / 12 
+      y1 <- runif(N, min=ES-sqrt(3)*SD, max=ES+sqrt(3)*SD)
+      label <- "Uniform"
+      
+    } else if (dist=="tri") {
+      # mean = (a + b) / 2
+      # variance = (b - a)^2 / 24
+      a <- ES - sqrt(6) * SD
+      b <- ES + sqrt(6) * SD
+      u <- runif(N) #generate from U(0,1)
+      y1 <- ifelse(u < 0.5,
+                   a+sqrt((b-a)^2*u/2),
+                   b-sqrt((b-a)^2*(1-u)/2)) #inverse transformation method
+      label <- "Triangular"
+      
+    } else if (dist=="bim") {
+      sd_eq <- sqrt(SD^2-0.45^2/(p.mix*(1-p.mix)))
+      y1 <- EnvStats::rnormMix(N, mean1=ES-0.45/(1-p.mix), mean2=ES+0.45/p.mix, 
+                               sd1=sd_eq, sd2=sd_eq, p.mix=p.mix)
+      label <- ifelse(p.mix==0.5, "Bimodal", "Bimodal (asymm)")
+      
+    } else if (dist=="100sd") {
+      y1 <- rnorm(N, ES, SD*100)
+      label <- "Normal (100×SD)"
+      
+    } else {stop("Bad Input!")}
+    pVal_vio[i] <- t.test(y1)$p.value
+    BF_vio[i] <- computeBF(y1)
+  }
+  
+  df <- data.frame("Model"=factor(rep(c("Normal","Normal (rep)",label),each=NSim),
+                                  levels=c("Normal","Normal (rep)",label)),
+                   "pVal"=c(pVal, pVal_rep, pVal_vio))
+  if (plot %in% c(1,3)) {
+    if (ES==0) { #null
+      df$BF <- 1/c(BF, BF_rep, BF_vio) #BF01
+      ylab <- expression(italic("BF")["01"])
+      yline <- c(1/3,3); ytext <- c("1/3","3")
+    } else {
+      df$BF <- log(c(BF, BF_rep, BF_vio)) #log(BF10)
+      ylab <- expression("ln("~italic("BF")[10]~")")
+      yline <- c(-log(3),log(3)); ytext <- c("-ln3","ln3")
+    }
+  }
+  
+  if (plot==1) { #distributions of the Bayes factors
+    KL_div_ref <- FNN::KL.divergence(BF, BF_rep, k=k)
+    KL_div <- FNN::KL.divergence(BF, BF_vio, k=k)
+    KL_text <- "the Bayes factors"
+    KS_ref <- stats::ks.test(BF, BF_rep)
+    KS <- stats::ks.test(BF, BF_vio)
+    # HD_ref <- statip::hellinger(BF, BF_rep, 0, Inf)
+    # HD <- statip::hellinger(BF, BF_vio, 0, Inf) #the integral is probably divergent!
+    if (ES==0) { #null
+      df$err1 <- df$BF < 1/3 #type I errors
+      ypos <- 0.1
+    } else {
+      df$pwr <- df$BF > log(3) #statistical power
+      ypos <- 2.1
+    }
+    freq <- table(df[-c(2,3)])[,"TRUE"] / NSim
+    sample_norm <- log(BF)
+    sample_rep <- log(BF_rep)
+    sample_vio <- log(BF_vio)
+    label_x <- ifelse(interact,
+                      "ln(BF10)",
+                      expression("ln("~italic("BF")[10]~")")) #ggplotly may not support the math expression
+    
+    print(ggplot(df, aes(x=Model, y=BF))+
+    geom_boxplot()+
+    labs(x="True Model", y=ylab,
+         title=expression("Bayesian One-Sample"~italic(t)~"-Test"),
+         subtitle=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES))+
+    annotate("text", x=c(0.9,1.9,2.9), y=ypos, label=freq, color="red", angle=90)+
+    geom_hline(yintercept=yline, linetype="dashed", color="gray")+
+    annotate("text", x=Inf, y=yline[1], label=ytext[1], hjust=1.1, vjust=-0.5, color="gray")+
+    annotate("text", x=Inf, y=yline[2], label=ytext[2], hjust=1.1, vjust=-0.5, color="gray")+
+    theme_classic())
+
+    
+  } else if (plot==2) { #distributions of p-values
+    KL_div_ref <- FNN::KL.divergence(pVal, pVal_rep, k=k)
+    KL_div <- FNN::KL.divergence(pVal, pVal_vio, k=k)
+    KL_text <- "p-values"
+    KS_ref <- stats::ks.test(pVal, pVal_rep)
+    KS <- stats::ks.test(pVal, pVal_vio)
+    if (ES==0) { #maximum number of subdivisions reached!
+      HD_ref <- statip::hellinger(pVal, pVal_rep, 0, 1)
+      HD <- statip::hellinger(pVal, pVal_vio, 0, 1)
+    }
+    typeI <- c(sum(pVal < .05), sum(pVal_rep < .05), sum(pVal_vio < .05)) / NSim
+    sample_norm <-pVal
+    sample_rep <- pVal_rep
+    sample_vio <- pVal_vio
+    label_x <- ifelse(interact,
+                      "P-Value",
+                      expression(italic("P")~"-Value"))  #ggplotly may not support the math expression
+    
+    print(ggplot(df, aes(x=Model, y=pVal))+
+    geom_boxplot()+
+    labs(x="True Model", y=expression(italic("P")~"-Value"),
+         title=expression("One-Sample"~italic(t)~"-Test"),
+         subtitle=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES))+
+    annotate("text", x=c(0.9,1.9,2.9), y=.015, label=typeI, color="red", angle=90)+
+    geom_hline(yintercept=.05, linetype="dotted", color="gray")+
+    geom_hline(yintercept=0, linetype="dashed", color="gray")+
+    geom_hline(yintercept=1, linetype="dashed", color="gray")+
+    scale_y_continuous(breaks=c(.01,.05,.1,1))+
+    theme_classic())
+
+
+  } else if (plot==3) { #scatter plot of the p-values and the Bayes factors
+    print(ggplot(df, aes(pVal, BF))+
+    geom_point(size=0.5,color="#8263d9",alpha=.2)+
+    facet_grid(. ~ Model)+
+    geom_hline(yintercept=yline,linetype="dashed")+
+    geom_vline(xintercept=.05,color="red")+
+    scale_x_continuous(breaks=c(.05,1))+
+    annotate("text", x=Inf, y=yline[1], label=ytext[1], hjust=1.1, vjust=-0.5, color="gray")+
+    annotate("text", x=Inf, y=yline[2], label=ytext[2], hjust=1.1, vjust=-0.5, color="gray")+
+    labs(x=expression(italic("P")~"-Value"),y=ylab,
+         title=expression("One-Sample"~italic(t)~"-Test"),
+         subtitle=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES))+
+    theme_classic())
+  
+    print(ggplot(df, aes(pVal, BF, color=Model))+
+      geom_point(size=0.5,alpha=.1)+
+      scale_color_manual(values=c("#bac2ff", "#4e91fd", "#ff4848"))+
+      geom_hline(yintercept=yline,linetype="dashed")+
+      geom_vline(xintercept=.05,color="red")+
+      scale_x_continuous(breaks=c(.05,1))+
+      annotate("text", x=Inf, y=yline[1], label=ytext[1], hjust=1.1, vjust=-0.5, color="gray")+
+      annotate("text", x=Inf, y=yline[2], label=ytext[2], hjust=1.1, vjust=-0.5, color="gray")+
+      labs(x=expression(italic("P")~"-Value"),y=ylab)+
+      theme_classic()+
+      theme(legend.position="bottom")+
+      guides(colour=guide_legend(override.aes=list(size=3, alpha=1),nrow=1)))
+    
+  } else {stop("Bad Input!")}
+  
+  if (plot %in% c(1,2)) {
+    KL_div <- KL_div[KL_div < Inf & KL_div >= 0]
+    KL_div_ref <- KL_div_ref[KL_div_ref < Inf & KL_div_ref >= 0]
+    cat("The overall KL divergence between the distributions of", KL_text,
+        "\n  under model misspecification is", round(mean(KL_div),3),
+        "nats, \nwhile the overall KL divergence under correct specification is", round(mean(KL_div_ref),3),
+        "nats, \n  given", k, "nearest neighbors and", NSim, "replicates.")
+    cat("\n\n")
+    if (plot==2 & ES==0) {
+      cat("The Hellinger distance between the distributions of", KL_text,
+        "\n is", round(HD,3), "under model misspecification,",
+        "\nwhile the Hellinger distance is", round(HD_ref,3), "under correct specification.")
+      cat("\n\n")
+    }
+    cat("The two-sample KS tests show D =", round(KS$statistic,3), "and p-value =", round(KS$p.value,3),
+        "under model misspecification, \n  and D =",
+        round(KS_ref$statistic,3), "and p-value =", round(KS_ref$p.value,3), "under correct specification.")
+    ecdf_norm <- stats::ecdf(sample_norm) #compute an empirical cumulative distribution function
+    ecdf_rep <- stats::ecdf(sample_rep)
+    ecdf_vio <- stats::ecdf(sample_vio)
+
+    if(interact) { #interactive 
+    ecdf_obj <- data.frame("x"=c(sample_norm, sample_rep, sample_vio),
+                           "y"=c(ecdf_norm(sample_norm), ecdf_rep(sample_rep), ecdf_vio(sample_vio)),
+                           "Model"=factor(rep(c("Normal", "Normal (rep)", label), each=NSim)))
+    
+    ggplotly(ggplot(ecdf_obj, aes(x, y, color=Model))+
+                 geom_step()+xlab(label_x)+ylab("ECDF")+
+                 ggtitle(paste0("Empirical CDF Comparison, N.S. = ",N,
+                                ", N.R. = ",NSim,", ES = ",ES))+
+                 scale_color_manual(values=c("black","blue","red"))+
+                 geom_hline(yintercept=c(0,1),linetype="dashed",color="gray")+
+                 theme_classic())
+    
+    } else { #base
+      plot(ecdf_norm, main="Empirical CDF Comparison", xlab=label_x, ylab="ECDF",
+           sub=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES), ...)
+      lines(ecdf_rep, col="blue")
+      lines(ecdf_vio, col="red")
+      legend("bottomright", legend=c("Normal","Normal (rep)",label), col=c("black","blue","red"), lwd=2)
+    }
+  }
+}
+```
+
+### Summary {.tabset}
+
+&nbsp;
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-lboi{border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-9wq8{border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-y0n7{background-color:#efefef;text-align:center;vertical-align:middle}
+.tg .tg-uzvj{border-color:inherit;font-weight:bold;text-align:center;vertical-align:middle}
+.tg .tg-fsme{background-color:#efefef;border-color:inherit;text-align:center;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <td class="tg-9wq8" colspan="2" rowspan="2">KL Divergence</td>
+    <td class="tg-9wq8" colspan="2">Bayes Factor</td>
+    <td class="tg-y0n7" rowspan="11"></td>
+    <td class="tg-9wq8" colspan="2"><span style="font-style:italic">P</span>-Value</td>
+  </tr>
+  <tr>
+    <td class="tg-uzvj">Misspecified</td>
+    <td class="tg-uzvj">Correct</td>
+    <td class="tg-uzvj"><span style="font-style:normal">Misspecified</span></td>
+    <td class="tg-uzvj"><span style="font-style:normal">Correct</span></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.116</td>
+    <td class="tg-9wq8">0.052</td>
+    <td class="tg-9wq8">0.101</td>
+    <td class="tg-9wq8">0.058</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">0.031</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">0.037</td>
+    <td class="tg-9wq8">0.049</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.017</td>
+    <td class="tg-9wq8">0.016</td>
+    <td class="tg-9wq8">0.024</td>
+    <td class="tg-9wq8">0.013</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.042</td>
+    <td class="tg-9wq8">0.054</td>
+    <td class="tg-9wq8">0.042</td>
+    <td class="tg-9wq8">0.039</td>
+  </tr>
+  <tr>
+    <td class="tg-fsme" colspan="4"></td>
+    <td class="tg-fsme" colspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0.5</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.063</td>
+    <td class="tg-9wq8">0.034</td>
+    <td class="tg-9wq8">0.114</td>
+    <td class="tg-9wq8">0.023</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">0.132</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">0.168</td>
+    <td class="tg-9wq8">0.012</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.134</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">0.122</td>
+    <td class="tg-9wq8">0.011</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.017</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">0.075</td>
+    <td class="tg-9wq8">0.029</td>
+  </tr>
+</thead>
+</table>
+
+&nbsp;
+
+#### The Bayes Factor {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-skew-ES0-N10}
+viz(10, NSim, 0) #function is defined in Section 7
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-skew-ES0-N20-1}
+viz(20, NSim, 0)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-skew-ES0-N100-1}
+viz(100, NSim, 0)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-skew-ES0-N1000-1}
+viz(1000, NSim, 0)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N10-1}
+viz(10, NSim, 0.5)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N20-1}
+viz(20, NSim, 0.5)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N100-1}
+viz(100, NSim, 0.5)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N1000-1}
+viz(1000, NSim, 0.5)
+```
+
+&nbsp;
+&nbsp;
+
+#### $P$-Value {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-skew-ES0-N10-2}
+viz(10, NSim, 0, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-skew-ES0-N20-2}
+viz(20, NSim, 0, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-skew-ES0-N100-2}
+viz(100, NSim, 0, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-skew-ES0-N1000-2}
+viz(1000, NSim, 0, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N10-2}
+viz(10, NSim, 0.5, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N20-2}
+viz(20, NSim, 0.5, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N100-2}
+viz(100, NSim, 0.5, plot=2, interact=F, xlim=c(0,.005))
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N1000-2}
+viz(1000, NSim, 0.5, plot=2, interact=F, xlim=c(0,1E-43))
+```
+
+&nbsp;
+&nbsp;
+
+#### The Bayes Factors and $P$-Values{.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-skew-ES0-N10-3}
+viz(10, NSim, 0, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-skew-ES0-N20-3}
+viz(20, NSim, 0, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-skew-ES0-N100-3}
+viz(100, NSim, 0, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-skew-ES0-N1000-3}
+viz(1000, NSim, 0, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N10-3}
+viz(10, NSim, 0.5, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N20-3}
+viz(20, NSim, 0.5, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N100-3}
+viz(100, NSim, 0.5, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-skew-ES0.5-N1000-3}
+viz(1000, NSim, 0.5, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+
+
+
+
+## 2. Uniform
+
+&nbsp;
+
+$X_1,\dotsb,X_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Y_1,\dotsb,Y_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Z_1,\dotsb,Z_N\overset{\text{i.i.d.}}{\sim}\mathcal{Q}(0,1)$, a non-normal distribution
+
+Read Section 7 first.
+
+&nbsp;
+
+### 2. Continuous Uniform Distribution
+
+Same population mean 0 and variance 1.
+
+```{r unif, fig.height=4, fig.width=5}
+# mean = (a + b) / 2
+# variance = (b - a)^2 / 12 ==>
+# a = mean - sqrt(3 * variance)
+# b = mean + sqrt(3 * variance)
+
+curve(dunif(x, min=-sqrt(3), max=sqrt(3)), -3, 3, 
+      lty=2, lwd=2, col="red", xlab="x", ylab="Density",
+      ylim=c(0, 0.42), main="Probability Density Functions")
+curve(dnorm, lwd=2, add=T)
+legend("topright",c("Violated","Normal"), col=c("red","black"), lty=c(2,1), lwd=2, bty="n")
+```
+
+### Summary {.tabset}
+
+&nbsp;
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-lboi{border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-9wq8{border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-y0n7{background-color:#efefef;text-align:center;vertical-align:middle}
+.tg .tg-uzvj{border-color:inherit;font-weight:bold;text-align:center;vertical-align:middle}
+.tg .tg-fsme{background-color:#efefef;border-color:inherit;text-align:center;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <td class="tg-9wq8" colspan="2" rowspan="2">KL Divergence</td>
+    <td class="tg-9wq8" colspan="2">Bayes Factor</td>
+    <td class="tg-y0n7" rowspan="11"></td>
+    <td class="tg-9wq8" colspan="2"><span style="font-style:italic">P</span>-Value</td>
+  </tr>
+  <tr>
+    <td class="tg-uzvj">Misspecified</td>
+    <td class="tg-uzvj">Correct</td>
+    <td class="tg-uzvj"><span style="font-style:normal">Misspecified</span></td>
+    <td class="tg-uzvj"><span style="font-style:normal">Correct</span></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.064</td>
+    <td class="tg-9wq8">0.052</td>
+    <td class="tg-9wq8">0.055</td>
+    <td class="tg-9wq8">0.058</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">0.034</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">0.033</td>
+    <td class="tg-9wq8">0.049</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.039</td>
+    <td class="tg-9wq8">0.016</td>
+    <td class="tg-9wq8">0.013</td>
+    <td class="tg-9wq8">0.013</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.03</td>
+    <td class="tg-9wq8">0.054</td>
+    <td class="tg-9wq8">0.032</td>
+    <td class="tg-9wq8">0.039</td>
+  </tr>
+  <tr>
+    <td class="tg-fsme" colspan="4"></td>
+    <td class="tg-fsme" colspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0.5</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.04</td>
+    <td class="tg-9wq8">0.034</td>
+    <td class="tg-9wq8">0.047</td>
+    <td class="tg-9wq8">0.023</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">0.003</td>
+    <td class="tg-9wq8">0.012</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.021</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">0.025</td>
+    <td class="tg-9wq8">0.011</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.011</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">0.016</td>
+    <td class="tg-9wq8">0.029</td>
+  </tr>
+</thead>
+</table>
+
+&nbsp;
+
+#### The Bayes Factor {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-unif-ES0-N10-1}
+viz(10, NSim, 0, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-unif-ES0-N20-1}
+viz(20, NSim, 0, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-unif-ES0-N100-1}
+viz(100, NSim, 0, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-unif-ES0-N1000-1}
+viz(1000, NSim, 0, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N10-1}
+viz(10, NSim, 0.5, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N20-1}
+viz(20, NSim, 0.5, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N100-1}
+viz(100, NSim, 0.5, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N1000-1}
+viz(1000, NSim, 0.5, dist="unif")
+```
+
+&nbsp;
+&nbsp;
+
+#### $P$-Value{.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-unif-ES0-N10-2}
+viz(10, NSim, 0, dist="unif", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-unif-ES0-N20-2}
+viz(20, NSim, 0, dist="unif", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-unif-ES0-N100-2}
+viz(100, NSim, 0, dist="unif", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-unif-ES0-N1000-2}
+viz(1000, NSim, 0, dist="unif", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N10-2}
+viz(10, NSim, 0.5, dist="unif", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N20-2}
+viz(20, NSim, 0.5, dist="unif", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N100-2}
+viz(100, NSim, 0.5, dist="unif", plot=2, interact=F, xlim=c(0,.005))
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N1000-2}
+viz(1000, NSim, 0.5, dist="unif", plot=2, interact=F, xlim=c(0,1E-43))
+```
+
+&nbsp;
+&nbsp;
+
+#### The Bayes Factors and $P$-Values {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-unif-ES0-N10-3}
+viz(10, NSim, 0, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-unif-ES0-N20-3}
+viz(20, NSim, 0, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-unif-ES0-N100-3}
+viz(100, NSim, 0, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-unif-ES0-N1000-3}
+viz(1000, NSim, 0, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N10-3}
+viz(10, NSim, 0.5, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N20-3}
+viz(20, NSim, 0.5, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N100-3}
+viz(100, NSim, 0.5, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-unif-ES0.5-N1000-3}
+viz(1000, NSim, 0.5, dist="unif", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+
+
+
+
+## 3. Triangular
+
+&nbsp;
+
+$X_1,\dotsb,X_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Y_1,\dotsb,Y_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Z_1,\dotsb,Z_N\overset{\text{i.i.d.}}{\sim}\mathcal{Q}(0,1)$, a non-normal distribution
+
+Read Section 7 first.
+
+&nbsp;
+
+### 3. Symmetric Triangular Distribution
+
+Same population mean 0 and variance 1.
+
+```{r tri, fig.height=4, fig.width=5}
+sym_tri_pdf <- function(x, a, b) {
+  #' define the symmetric triangular distribution PDF
+  c <- (a + b) / 2
+  ifelse(x < a | x > b, 0, ((b - c) - abs(c - x)) / ((b-c)^2))
+}
+
+curve(sym_tri_pdf(x, -sqrt(6), sqrt(6)), -3, 3, lty=2, lwd=2, col="red",
+      xlab="x", ylab="Density", main="Probability Density Functions")
+curve(dnorm, lwd=2, add=T)
+legend("topright",c("Violated","Normal"), col=c("red","black"), lty=c(2,1), lwd=2, bty="n")
+```
+
+### Summary {.tabset}
+
+&nbsp;
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-lboi{border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-9wq8{border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-y0n7{background-color:#efefef;text-align:center;vertical-align:middle}
+.tg .tg-uzvj{border-color:inherit;font-weight:bold;text-align:center;vertical-align:middle}
+.tg .tg-fsme{background-color:#efefef;border-color:inherit;text-align:center;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <td class="tg-9wq8" colspan="2" rowspan="2">KL Divergence</td>
+    <td class="tg-9wq8" colspan="2">Bayes Factor</td>
+    <td class="tg-y0n7" rowspan="11"></td>
+    <td class="tg-9wq8" colspan="2"><span style="font-style:italic">P</span>-Value</td>
+  </tr>
+  <tr>
+    <td class="tg-uzvj">Misspecified</td>
+    <td class="tg-uzvj">Correct</td>
+    <td class="tg-uzvj"><span style="font-style:normal">Misspecified</span></td>
+    <td class="tg-uzvj"><span style="font-style:normal">Correct</span></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.058</td>
+    <td class="tg-9wq8">0.052</td>
+    <td class="tg-9wq8">0.047</td>
+    <td class="tg-9wq8">0.058</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">0.036</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">0.037</td>
+    <td class="tg-9wq8">0.049</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.028</td>
+    <td class="tg-9wq8">0.016</td>
+    <td class="tg-9wq8">0.026</td>
+    <td class="tg-9wq8">0.013</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.032</td>
+    <td class="tg-9wq8">0.054</td>
+    <td class="tg-9wq8">0.028</td>
+    <td class="tg-9wq8">0.039</td>
+  </tr>
+  <tr>
+    <td class="tg-fsme" colspan="4"></td>
+    <td class="tg-fsme" colspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0.5</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.051</td>
+    <td class="tg-9wq8">0.034</td>
+    <td class="tg-9wq8">0.05</td>
+    <td class="tg-9wq8">0.023</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">0.012</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.007</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">0.01</td>
+    <td class="tg-9wq8">0.011</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.013</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">0.027</td>
+    <td class="tg-9wq8">0.029</td>
+  </tr>
+</thead>
+</table>
+
+&nbsp;
+
+#### The Bayes Factor {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-tri-ES0-N10-1}
+viz(10, NSim, 0, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-tri-ES0-N20-1}
+viz(20, NSim, 0, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-tri-ES0-N100-1}
+viz(100, NSim, 0, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-tri-ES0-N1000-1}
+viz(1000, NSim, 0, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N10-1}
+viz(10, NSim, 0.5, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N20-1}
+viz(20, NSim, 0.5, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N100-1}
+viz(100, NSim, 0.5, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N1000-1}
+viz(1000, NSim, 0.5, dist="tri")
+```
+
+&nbsp;
+&nbsp;
+
+#### $P$-Value {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-tri-ES0-N10-2}
+viz(10, NSim, 0, dist="tri", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-tri-ES0-N20-2}
+viz(20, NSim, 0, dist="tri", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-tri-ES0-N100-2}
+viz(100, NSim, 0, dist="tri", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-tri-ES0-N1000-2}
+viz(1000, NSim, 0, dist="tri", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N10-2}
+viz(10, NSim, 0.5, dist="tri", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N20-2}
+viz(20, NSim, 0.5, dist="tri", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N100-2}
+viz(100, NSim, 0.5, dist="tri", plot=2, interact=F, xlim=c(0,.005))
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N1000-2}
+viz(1000, NSim, 0.5, dist="tri", plot=2, interact=F, xlim=c(0,1E-43))
+```
+
+&nbsp;
+&nbsp;
+
+#### The Bayes Factors and $P$-Values {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-tri-ES0-N10-3}
+viz(10, NSim, 0, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-tri-ES0-N20-3}
+viz(20, NSim, 0, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-tri-ES0-N100-3}
+viz(100, NSim, 0, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-tri-ES0-N1000-3}
+viz(1000, NSim, 0, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N10-3}
+viz(10, NSim, 0.5, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N20-3}
+viz(20, NSim, 0.5, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N100-3}
+viz(100, NSim, 0.5, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-tri-ES0.5-N1000-3}
+viz(1000, NSim, 0.5, dist="tri", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+
+
+
+
+## 4A. Bimodal
+
+&nbsp;
+
+$X_1,\dotsb,X_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Y_1,\dotsb,Y_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Z_1,\dotsb,Z_N\overset{\text{i.i.d.}}{\sim}\mathcal{Q}(0,1)$, a non-normal distribution
+
+Read Section 7 first.
+
+&nbsp;
+
+### 4. Mixture of Two Normal Distributions
+
+$f(x;\mu_1,\mu_2,\sigma_1^2,\sigma_2^2,w)=(1-w)\cdot\mathcal{N}(x;\mu_1,\sigma_1^2)+w\cdot\mathcal{N}(x;\mu_2,\sigma_2^2)$
+
+Same population mean 0 and variance 1. $\mu_0=0$ and $\sigma_0^2=1$.
+
+The mean is $\quad(1-w)\mu_1+w\mu_2:=\mu_0$.
+
+The variance is $\quad(1-w)\sigma_1^2+w\sigma_2^2+w(1-w)(\mu_1-\mu_2)^2:=\sigma_0^2$.
+
+Let $\quad\mu_1=\mu_0-\frac{\mu}{1-w}$, $\quad\mu_2=\mu_0+\frac{\mu}{w}$, $\quad$and $\sigma_1=\sigma_2=\sigma$.
+
+Then, [obtain](https://stats.stackexchange.com/a/16609) $\quad\sigma^2+\frac{\mu^2}{w(1-w)}=\sigma_0^2$.
+
+```{r ellipse, fig.height=5, fig.width=5}
+t <- seq(0, 2*pi, length.out=100)
+horiz <- cos(t); vert <- 0.5*sin(t)
+plot(horiz, vert, type="l", asp=1, col="blue", xaxt="n", yaxt="n",
+     xlab=expression(italic(σ)), ylab=expression(italic(μ)), main="A Standard Ellipse")
+abline(h=0, v=0, col="gray", lty=2)
+text(1, 0, expression(italic(σ)[0]), cex=1.5, col="red")
+text(-1, 0, expression(-italic(σ)[0]), cex=1.5, col="red")
+text(0, 0.5, expression(italic(σ)[0]*sqrt(italic(w)*(italic(1-w)))), cex=1.5, col="red")
+text(0, -0.5, expression(-italic(σ)[0]*sqrt(italic(w)*(italic(1-w)))), cex=1.5, col="red")
+text(0, 0, expression(italic(σ)^2 + frac(italic(μ)^2, italic(w)*(italic(1-w))) == italic(σ)[0]^2), col="blue")
+```
+
+```{r bim, fig.height=4, fig.width=5.5}
+m1 <- 0.9; sd1 <- sqrt(1-m1^2) #sd1^2 + m1^2 = 1, given w = .5 (symmetry)
+# LaplacesDemon::dnormm(x, p=rep(.5,2), mu=c(-m1,m1), sigma=rep(sd1,2)) #same
+
+curve(EnvStats::dnormMix(x, mean1=-m1, mean2=m1, sd1=sd1, sd2=sd1), -3, 3,
+      lwd=2, col="red", xlab="x", ylab="Density", main="Probability Density Functions")
+curve(dnorm, lwd=2, add=T)
+legend("topright",c("Violated","Normal"), col=c("red","black"), lty=c(2,1), lwd=2, bty="n")
+```
+
+### Summary {.tabset}
+
+&nbsp;
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-lboi{border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-9wq8{border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+.tg .tg-fsme{background-color:#efefef;border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-uzvj{border-color:inherit;font-weight:bold;text-align:center;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <td class="tg-9wq8" colspan="2" rowspan="2">KS Statistic</td>
+    <td class="tg-9wq8" colspan="2">Bayes Factor</td>
+    <td class="tg-fsme" rowspan="11"></td>
+    <td class="tg-9wq8" colspan="2"><span style="font-style:italic">P</span>-Value</td>
+  </tr>
+  <tr>
+    <td class="tg-uzvj">Misspecified</td>
+    <td class="tg-uzvj">Correct</td>
+    <td class="tg-uzvj"><span style="font-style:normal">Misspecified</span></td>
+    <td class="tg-uzvj"><span style="font-style:normal">Correct</span></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.058</td>
+    <td class="tg-9wq8">0.036</td>
+    <td class="tg-c3ow">0.058</td>
+    <td class="tg-c3ow">0.036</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">0.042</td>
+    <td class="tg-9wq8">0.046</td>
+    <td class="tg-c3ow">0.042</td>
+    <td class="tg-c3ow">0.046</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.038</td>
+    <td class="tg-9wq8">0.056</td>
+    <td class="tg-c3ow">0.038</td>
+    <td class="tg-c3ow">0.056</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.056</td>
+    <td class="tg-9wq8">0.046</td>
+    <td class="tg-c3ow">0.056</td>
+    <td class="tg-c3ow">0.046</td>
+  </tr>
+  <tr>
+    <td class="tg-fsme" colspan="4"></td>
+    <td class="tg-fsme" colspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0.5</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-c3ow">0.092</td>
+    <td class="tg-c3ow">0.064</td>
+    <td class="tg-c3ow">0.092</td>
+    <td class="tg-c3ow">0.064</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-c3ow">0.082</td>
+    <td class="tg-c3ow">0.068</td>
+    <td class="tg-c3ow">0.082</td>
+    <td class="tg-c3ow">0.068</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-c3ow">0.032</td>
+    <td class="tg-c3ow">0.056</td>
+    <td class="tg-c3ow">0.032</td>
+    <td class="tg-c3ow">0.056</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-c3ow">0.04</td>
+    <td class="tg-c3ow">0.036</td>
+    <td class="tg-c3ow">0.04</td>
+    <td class="tg-c3ow">0.036</td>
+  </tr>
+</thead>
+</table>
+
+&nbsp;
+
+#### The Bayes Factor {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-bim-ES0-N10-1}
+viz(10, NSim, 0, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-bim-ES0-N20-1}
+viz(20, NSim, 0, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-bim-ES0-N100-1}
+viz(100, NSim, 0, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-bim-ES0-N1000-1}
+viz(1000, NSim, 0, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N10-1}
+viz(10, NSim, 0.5, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N20-1}
+viz(20, NSim, 0.5, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N100-1}
+viz(100, NSim, 0.5, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N1000-1}
+viz(1000, NSim, 0.5, dist="bim")
+```
+
+&nbsp;
+&nbsp;
+
+#### $P$-Value {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-bim-ES0-N10-2}
+viz(10, NSim, 0, dist="bim", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-bim-ES0-N20-2}
+viz(20, NSim, 0, dist="bim", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-bim-ES0-N100-2}
+viz(100, NSim, 0, dist="bim", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-bim-ES0-N1000-2}
+viz(1000, NSim, 0, dist="bim", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N10-2}
+viz(10, NSim, 0.5, dist="bim", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N20-2}
+viz(20, NSim, 0.5, dist="bim", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N100-2}
+viz(100, NSim, 0.5, dist="bim", plot=2, interact=F, xlim=c(0,.005))
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N1000-2}
+viz(1000, NSim, 0.5, dist="bim", plot=2, interact=F, xlim=c(0,1E-43))
+```
+
+&nbsp;
+&nbsp;
+
+#### The Bayes Factors and $P$-Values {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-bim-ES0-N10-3}
+viz(10, NSim, 0, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-bim-ES0-N20-3}
+viz(20, NSim, 0, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-bim-ES0-N100-3}
+viz(100, NSim, 0, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-bim-ES0-N1000-3}
+viz(1000, NSim, 0, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N10-3}
+viz(10, NSim, 0.5, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N20-3}
+viz(20, NSim, 0.5, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N100-3}
+viz(100, NSim, 0.5, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-bim-ES0.5-N1000-3}
+viz(1000, NSim, 0.5, dist="bim", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+
+
+
+
+## 4B. Bimodal (Asymmetry)
+
+&nbsp;
+
+```{r abim, fig.height=4, fig.width=5.5}
+p <- 1/3; m1 <- -0.45/(1-p); m2 <- 0.45/p; sd1 <- sqrt(1+m1*m2)
+
+curve(EnvStats::dnormMix(x, mean1=m1, mean2=m2, sd1=sd1, sd2=sd1, p.mix=p), -3, 3,
+      lty=2, lwd=2, col="red", xlab="x", ylab="Density", main="Probability Density Functions")
+curve(dnorm, lwd=2, add=T)
+legend("topright",c("Violated","Normal"), col=c("red","black"), lty=c(2,1), lwd=2, bty="n")
+```
+
+### Summary {.tabset}
+
+&nbsp;
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-lboi{border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-9wq8{border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+.tg .tg-fsme{background-color:#efefef;border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-uzvj{border-color:inherit;font-weight:bold;text-align:center;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <td class="tg-9wq8" colspan="2" rowspan="2">KS Statistic</td>
+    <td class="tg-9wq8" colspan="2">Bayes Factor</td>
+    <td class="tg-fsme" rowspan="11"></td>
+    <td class="tg-9wq8" colspan="2"><span style="font-style:italic">P</span>-Value</td>
+  </tr>
+  <tr>
+    <td class="tg-uzvj">Misspecified</td>
+    <td class="tg-uzvj">Correct</td>
+    <td class="tg-uzvj"><span style="font-style:normal">Misspecified</span></td>
+    <td class="tg-uzvj"><span style="font-style:normal">Correct</span></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.040</td>
+    <td class="tg-9wq8">0.036</td>
+    <td class="tg-c3ow">0.040</td>
+    <td class="tg-c3ow">0.036</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">0.066</td>
+    <td class="tg-9wq8">0.046</td>
+    <td class="tg-c3ow">0.066</td>
+    <td class="tg-c3ow">0.046</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.032</td>
+    <td class="tg-9wq8">0.056</td>
+    <td class="tg-c3ow">0.032</td>
+    <td class="tg-c3ow">0.056</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.040</td>
+    <td class="tg-9wq8">0.046</td>
+    <td class="tg-c3ow">0.040</td>
+    <td class="tg-c3ow">0.046</td>
+  </tr>
+  <tr>
+    <td class="tg-fsme" colspan="4"></td>
+    <td class="tg-fsme" colspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0.5</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-c3ow">0.116</td>
+    <td class="tg-c3ow">0.064</td>
+    <td class="tg-c3ow">0.116</td>
+    <td class="tg-c3ow">0.064</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-c3ow">0.110</td>
+    <td class="tg-c3ow">0.068</td>
+    <td class="tg-c3ow">0.110</td>
+    <td class="tg-c3ow">0.068</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-c3ow">0.104</td>
+    <td class="tg-c3ow">0.056</td>
+    <td class="tg-c3ow">0.104</td>
+    <td class="tg-c3ow">0.056</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-c3ow">0.082</td>
+    <td class="tg-c3ow">0.036</td>
+    <td class="tg-c3ow">0.082</td>
+    <td class="tg-c3ow">0.036</td>
+  </tr>
+</thead>
+</table>
+
+&nbsp;
+
+#### The Bayes Factor {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-abim-ES0-N10-1}
+viz(10, NSim, 0, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-abim-ES0-N20-1}
+viz(20, NSim, 0, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-abim-ES0-N100-1}
+viz(100, NSim, 0, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-abim-ES0-N1000-1}
+viz(1000, NSim, 0, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N10-1}
+viz(10, NSim, 0.5, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N20-1}
+viz(20, NSim, 0.5, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N100-1}
+viz(100, NSim, 0.5, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N1000-1}
+viz(1000, NSim, 0.5, dist="bim", p.mix=1/3)
+```
+
+&nbsp;
+&nbsp;
+
+#### $P$-Value {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-abim-ES0-N10-2}
+viz(10, NSim, 0, dist="bim", p.mix=1/3, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-abim-ES0-N20-2}
+viz(20, NSim, 0, dist="bim", p.mix=1/3, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-abim-ES0-N100-2}
+viz(100, NSim, 0, dist="bim", p.mix=1/3, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-abim-ES0-N1000-2}
+viz(1000, NSim, 0, dist="bim", p.mix=1/3, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N10-2}
+viz(10, NSim, 0.5, dist="bim", p.mix=1/3, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N20-2}
+viz(20, NSim, 0.5, dist="bim", p.mix=1/3, plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N100-2}
+viz(100, NSim, 0.5, dist="bim", p.mix=1/3, plot=2, interact=F, xlim=c(0,.005))
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N1000-2}
+viz(1000, NSim, 0.5, dist="bim", p.mix=1/3, plot=2, interact=F, xlim=c(0,1E-43))
+```
+
+&nbsp;
+&nbsp;
+
+#### The Bayes Factors and $P$-Values {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-abim-ES0-N10-3}
+viz(10, NSim, 0, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-abim-ES0-N20-3}
+viz(20, NSim, 0, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-abim-ES0-N100-3}
+viz(100, NSim, 0, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-abim-ES0-N1000-3}
+viz(1000, NSim, 0, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N10-3}
+viz(10, NSim, 0.5, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N20-3}
+viz(20, NSim, 0.5, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N100-3}
+viz(100, NSim, 0.5, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-abim-ES0.5-N1000-3}
+viz(1000, NSim, 0.5, dist="bim", p.mix=1/3, plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+
+
+
+
+## 5. Increase $\sigma_\epsilon^2$
+
+&nbsp;
+
+$X_1,\dotsb,X_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Y_1,\dotsb,Y_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,1)$
+
+$Z_1,\dotsb,Z_N\overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,100^2)$
+
+Read Section 7 first.
+
+&nbsp;
+
+### Summary {.tabset}
+
+&nbsp;
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-lboi{border-color:inherit;text-align:left;vertical-align:middle}
+.tg .tg-9wq8{border-color:inherit;text-align:center;vertical-align:middle}
+.tg .tg-y0n7{background-color:#efefef;text-align:center;vertical-align:middle}
+.tg .tg-uzvj{border-color:inherit;font-weight:bold;text-align:center;vertical-align:middle}
+.tg .tg-fsme{background-color:#efefef;border-color:inherit;text-align:center;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <td class="tg-9wq8" colspan="2" rowspan="2">KL Divergence</td>
+    <td class="tg-9wq8" colspan="2">Bayes Factor</td>
+    <td class="tg-y0n7" rowspan="11"></td>
+    <td class="tg-9wq8" colspan="2"><span style="font-style:italic">P</span>-Value</td>
+  </tr>
+  <tr>
+    <td class="tg-uzvj"><span style="font-style:italic">SD</span>=100</td>
+    <td class="tg-uzvj"><span style="font-style:italic">SD</span>=1</td>
+    <td class="tg-uzvj"><span style="font-style:italic">SD</span>=100</td>
+    <td class="tg-uzvj"><span style="font-style:italic">SD</span><span style="font-style:normal">=1</span></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.06</td>
+    <td class="tg-9wq8">0.052</td>
+    <td class="tg-9wq8">0.058</td>
+    <td class="tg-9wq8">0.058</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">0.037</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">0.036</td>
+    <td class="tg-9wq8">0.049</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">0.022</td>
+    <td class="tg-9wq8">0.016</td>
+    <td class="tg-9wq8">0.01</td>
+    <td class="tg-9wq8">0.013</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">0.043</td>
+    <td class="tg-9wq8">0.054</td>
+    <td class="tg-9wq8">0.051</td>
+    <td class="tg-9wq8">0.039</td>
+  </tr>
+  <tr>
+    <td class="tg-fsme" colspan="4"></td>
+    <td class="tg-fsme" colspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-9wq8" rowspan="4">ES=0.5</td>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=10</td>
+    <td class="tg-9wq8">0.417</td>
+    <td class="tg-9wq8">0.034</td>
+    <td class="tg-9wq8">0.575</td>
+    <td class="tg-9wq8">0.023</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=20</td>
+    <td class="tg-9wq8">1.226</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">1.73</td>
+    <td class="tg-9wq8">0.012</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=100</td>
+    <td class="tg-9wq8">2.658</td>
+    <td class="tg-9wq8"></td>
+    <td class="tg-9wq8">10.933</td>
+    <td class="tg-9wq8">0.011</td>
+  </tr>
+  <tr>
+    <td class="tg-lboi"><span style="font-style:italic">N</span>=1000</td>
+    <td class="tg-9wq8">1.591</td>
+    <td class="tg-9wq8">0.045</td>
+    <td class="tg-9wq8">111.771</td>
+    <td class="tg-9wq8">0.029</td>
+  </tr>
+</thead>
+</table>
+
+&nbsp;
+
+#### The Bayes Factor {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N10-1}
+viz(10, NSim, 0, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N20-1}
+viz(20, NSim, 0, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N100-1}
+viz(100, NSim, 0, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N1000-1}
+viz(1000, NSim, 0, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N10-1}
+viz(10, NSim, 0.5, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N20-1}
+viz(20, NSim, 0.5, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N100-1}
+viz(100, NSim, 0.5, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N1000-1}
+viz(1000, NSim, 0.5, dist="100sd")
+```
+
+&nbsp;
+&nbsp;
+
+#### $P$-Value {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N10-2}
+viz(10, NSim, 0, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N20-2}
+viz(20, NSim, 0, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N100-2}
+viz(100, NSim, 0, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N1000-2}
+viz(1000, NSim, 0, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N10-2}
+viz(10, NSim, 0.5, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N20-2}
+viz(20, NSim, 0.5, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N100-2}
+viz(100, NSim, 0.5, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N1000-2}
+viz(1000, NSim, 0.5, dist="100sd", plot=2)
+```
+
+&nbsp;
+&nbsp;
+
+#### The Bayes Factors and $P$-Values {.tabset}
+##### $\text{True Effect}=0$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N10-3}
+viz(10, NSim, 0, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N20-3}
+viz(20, NSim, 0, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N100-3}
+viz(100, NSim, 0, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-100sd-ES0-N1000-3}
+viz(1000, NSim, 0, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+##### $\text{True Effect}=0.5$ {.tabset}
+###### $N=10$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N10-3}
+viz(10, NSim, 0.5, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=20$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N20-3}
+viz(20, NSim, 0.5, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=100$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N100-3}
+viz(100, NSim, 0.5, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+###### $N=1000$
+
+&nbsp;
+
+```{r viz-100sd-ES0.5-N1000-3}
+viz(1000, NSim, 0.5, dist="100sd", plot=3)
+```
+
+&nbsp;
+&nbsp;
+
+
+
+
+
+## 6. Analytic Bayes Factor
+
+&nbsp;
+
+<font size="5"> The "*BayesFactor*" R package and JASP </font>
+
+\begin{equation} \tag{1}
+y_i\overset{\text{i.i.d.}}{\sim}\mathcal{N}(\sigma_\epsilon \delta,\ \sigma_\epsilon^2)\quad\text{for }i=1,\dotsb,N,\text{ where }\delta=\mu\ /\ \sigma_\epsilon
+\end{equation}
+
+\begin{equation} \tag{2}
+\pi(\sigma_\epsilon^2)\propto\sigma_\epsilon^{-2}
+\end{equation}
+
+\begin{equation} \tag{3}
+\delta\sim\text{Cauchy}(0,\ h)=\frac{h}{(\delta^2+h^2)\pi}
+\end{equation}
+
+The Jeffreys-Zellner-Siow (JZS) Bayes factor for the Bayesian $t$-test, $\mathcal{H}_0:\ \delta=0$ versus $\mathcal{H}_1:\ \delta\neq 0$, is computed by integrating across one dimension in Eq. 4 (Ly et al., [2016](https://doi.org/10.1016/j.jmp.2015.06.004), p. 24; Rouder et al., [2012](https://doi.org/10.1016/j.jmp.2012.08.001), p. 360; Rouder et al., [2009](https://doi.org/10.3758/PBR.16.2.225), p. 237; Wei, Nathoo, & Masson, [2023](https://doi.org/10.3758/s13423-023-02295-1), p. 1762; see also the balanced one-way between-subjects ANOVA in Morey et al., [2011](https://doi.org/10.1016/j.jmp.2011.06.004), p. 374), using Gaussian quadrature.
+
+\begin{equation} \tag{4}
+\textit{JZS-BF}_{10}=(2\pi)^{-\frac{1}{2}}h\left(1+\frac{t^2}{\nu}\right)^{\frac{\nu+1}{2}}\int_0^\infty(1+Ng)^{-\frac{1}{2}}\left(1+\frac{t^2}{(1+Ng)\nu}\right)^{-\frac{\nu+1}{2}}g^{-\frac{3}{2}}e^{-\frac{h^2}{2g}}\text{d}g,
+\end{equation}
+
+where the default scale $h=\sqrt{2}/2$, the degrees of freedom $\nu=N-1$, $\quad t=\bar{y}\sqrt{N}/s_y$, $\quad\bar{y}$ is the sample mean, and $s_y$ is the sample standard deviation in a one-sample $t$-test.
+
+&nbsp;
+
+Unlike the *anovaBF* function, the *ttestBF* function of the "*BayesFactor*" R package (v 0.9.12-4.7) yields negligible Monte Carlo errors and does not require specifying the number of Markov chain Monte Carlo iterations.
+
+```{r integral, fig.width=10, fig.height=5}
+JZSBF10 <- function(h=sqrt(2)/2, t, N) {
+  #' Input - 
+  #' h:   the scale parameter of the Cauchy prior
+  #' t:   the observed t test statistic
+  #' N:   the sample size
+  #' Output - the JZS Bayes factor for a one-sample t-test
+  nu <- N - 1
+  coef <- (2*pi)^(-0.5) * h * (1+t^2/nu)^((nu+1)/2)
+  integrand <- function(g) {
+    (1+N*g)^(-0.5) * (1+t^2/((1+N*g)*nu))^(-(nu+1)/2) * g^(-1.5) * exp(-h^2/(2*g))
+  }
+  coef * integrate(integrand, lower=0, upper=Inf)$value
+}
+
+N <- 20 #sample size
+t_obs <- seq(0,5,by=0.2) #observed t test statistics
+NSim <- length(t_obs)
+pVal <- BF10 <- numeric(NSim)
+for (i in 1:NSim) {
+  pVal[i] <- pt(t_obs[i], df=N-1, lower.tail=F)*2
+  BF10[i] <- JZSBF10(t=t_obs[i], N=N)
+}
+
+par(mfrow=c(1,2))
+plot(pVal, 1/BF10,
+     main="The Theoretical Relationship",
+     sub=bquote(italic(N) == .(N)),
+     xlab=expression(italic("P")~"-Value"),
+     ylab=expression(italic("BF")["01"])) #closely match the empirical results
+abline(v=.05, col="red")
+abline(h=c(1/3,3), lty=2)
+
+plot(t_obs, BF10,
+     main="The Theoretical Relationship",
+     sub=bquote(italic(N) == .(N)),
+     xlab=expression("|"~italic("t")~"|-Statistic"),
+     ylab=expression(italic("BF")[10]))
+```
+
+&nbsp;
+
+\[
+\begin{align*}
+&\underset{N\to\infty}{\mathrm{plim}}\ \!\textit{JZS-BF}_{10}\left(t(N),\ N\right)=
+\begin{cases}
+  0, & \text{if $\delta=0$} \\ 
+  \infty, & \text{if $\delta\neq0$}
+\end{cases}
+\\
+\\
+&\lim_{t\to\infty}\textit{JZS-BF}_{10}\left(t(N),\ N\right)=\infty,\quad\forall N
+\end{align*}
+\]
+
+&nbsp;
+
+The resulting $\textit{JZS-BF}_{10}$ avoids critical issues:
+
+* Bartlett's paradox: the Bayes factor approaches zero as the prior variance increases.
+
+* Information paradox: the Bayes factor tends to be bounded, given overwhelming information.
+
+
+&nbsp;
+&nbsp;
+
+<font size="5"> Approximate Bayes Factor </font>
+
+The test statistic $W$ in the Wald test is $W=\left(\frac{\hat{\mu}-\mu_0}{\text{se}(\hat{\mu})}\right)^2\sim\chi_1^2$ under $\mathcal{H}_0$, where $\hat{\mu}$ is the maximum likelihood estimate, and $\text{se}(\hat{\mu})$ is the standard error. Therefore, $p$-value.
+
+```{r chisq, eval=F}
+pchisq(W, 1, lower.tail=F) #W and p-value are one to one
+qchisq(p, 1, lower.tail=F) #inverse CDF of chisq(1): 1-p → W → JAB
+```
+
+In a one-sample $t$-test, $\mu_0=0$, $\quad\hat{\mu}=\bar{y}$, $\quad\text{se}(\hat{\mu})=s_y/\sqrt{N}$, $\quad$ and $W=t^2$.
+
+Wagenmakers ([2022](https://doi.org/10.31234/osf.io/egydq); Eq. 6) reviewed the Jeffreys-style approximate Bayes factor (JAB) and proposed a piecewise approximation from $p$-value and sample size in Eq. 7.
+
+\begin{equation} \tag{5}
+\textit{BF}_{01}=\frac{p(\boldsymbol{y}\mid\mathcal{H}_0)}{p(\boldsymbol{y}\mid\mathcal{H}_1)}=\frac{p(\boldsymbol{y}\mid\mu_0)}{\int p(\boldsymbol{y}\mid\mu)\cdot g(\mu)\text{d}\mu}
+\end{equation}
+
+Using the normal unit-information prior for $\mu$,
+\begin{equation} \tag{6}
+\textit{JAB}_{01}=\sqrt{N}\exp\left\{-\frac{1}{2}W\right\}
+\end{equation}
+
+\[
+\textit{JAB}_{01}\approx
+\begin{cases} \tag{7}
+  \text{$\ p^{\frac{1}{4}}\sqrt{N}$,} & \text{$p>0.5$} \\ 
+  \text{$\ \sqrt{pN}$,} & \text{$0.1<p\leqslant0.5$} \\
+  \text{$\ 3p\sqrt{N}$,} & \text{$p\leqslant0.1$}
+\end{cases} 
+\]
+
+&nbsp;
+
+<a href="#top"> scroll to top </a>
+
+&nbsp;
+&nbsp;
+
+<font size="5"> Frequentist 101: <br /> Why are <em>p</em>-values uniformly distributed under the null hypothesis? </font>
+
+Left-sided $p$-value $:=\mathbb{P}(T\leqslant t\mid\mathcal{H}_0)=F_T(t)$.
+
+Given the PDF of the test statistic $T\overset{\mathcal{H}_0}{\sim}f_T(t)$ and its CDF $F_T(t)$,
+
+the CDF of the $p$-value under $\mathcal{H}_0$ is
+
+\begin{align*}
+  F_P(p):=&\mathbb{P}\left(P\leqslant p\right) \\
+  =&\mathbb{P}\left(F_T(T)\leqslant p\right) \\
+  =&\mathbb{P}\left(F_T^{-1}(F_T(T))\leqslant F_T^{-1}(p)\right) \\
+  =&\mathbb{P}\left(T\leqslant F_T^{-1}(p)\right) \\
+  =&F_T(F_T^{-1}(p)) \\
+  =&p
+\end{align*}
+
+indicating that $P\overset{\mathcal{H}_0}{\sim}U[0,1]$.
+
+
+
+&nbsp;
+&nbsp;
+
+
+
+
+
+## 7. Function
+
+&nbsp;
+
+In each simulation run, we generate ① `N` samples from a model following a normal distribution, ② other `N` samples from the same normal model, and ③ `N` samples from a model that does not follow a normal distribution — such as skewed-$t$, uniform, triangular, or bimodal — while maintaining the same population mean and variance. The parameters that vary are the sample size `N` and the effect size `ES`.
+
+For each data set, we calculate the Bayes factor and $p$-value of the one-sample $t$-test. We replicate the process `NSim=500` times. Consequently, we get `NSim=500` pairs of Bayes factors and $p$-values for each model scenario, allowing us to create boxplots and empirical cumulative distribution functions (ECDFs).
+
+We aim to compare the divergence between scenarios ③ and ①, using ② and ① as references.
+
+&nbsp;
+
+When $N$ is sufficiently large,
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-cly1{text-align:left;vertical-align:middle}
+.tg .tg-ggg6{background-color:#ecf4ff;text-align:center;vertical-align:middle}
+.tg .tg-baqh{text-align:center;vertical-align:top}
+.tg .tg-nrix{text-align:center;vertical-align:middle}
+.tg .tg-0lax{text-align:left;vertical-align:top}
+.tg .tg-0qe0{background-color:#ecf4ff;text-align:left;vertical-align:top}
+.tg .tg-gg7l{background-color:#efefef;text-align:left;vertical-align:middle}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-nrix" colspan="2">Distributions</th>
+    <th class="tg-ggg6">Skewed <span style="font-style:italic">t</span></th>
+    <th class="tg-nrix">Uniform</th>
+    <th class="tg-nrix">Triangular</th>
+    <th class="tg-0lax">Bimodal</th>
+    <th class="tg-0qe0">Asymmetric</th>
+    <th class="tg-nrix">100 SD</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-cly1" rowspan="2">Bayes<br>Factor</td>
+    <td class="tg-cly1">ES=0</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-baqh">=</td>
+    <td class="tg-baqh">=</td>
+    <td class="tg-nrix">=</td>
+  </tr>
+  <tr>
+    <td class="tg-cly1">ES=0.5</td>
+    <td class="tg-nrix">Diverge</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-baqh">=</td>
+    <td class="tg-baqh">Diverge</td>
+    <td class="tg-nrix">Diverge</td>
+  </tr>
+  <tr>
+    <td class="tg-gg7l" colspan="8"></td>
+  </tr>
+  <tr>
+    <td class="tg-cly1" rowspan="2"><span style="font-style:italic">P</span>-Value</td>
+    <td class="tg-cly1">ES=0</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-baqh">=</td>
+    <td class="tg-baqh">=</td>
+    <td class="tg-nrix">=</td>
+  </tr>
+  <tr>
+    <td class="tg-cly1">ES=0.5</td>
+    <td class="tg-nrix">Diverge</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-nrix">=</td>
+    <td class="tg-baqh">=</td>
+    <td class="tg-baqh">Diverge</td>
+    <td class="tg-nrix">Diverge</td>
+  </tr>
+</tbody>
+</table>
+
+&nbsp;
+&nbsp;
+
+Model misspecification occurs when the data are not normally distributed, particularly for small sample sizes.
+
+The normality assumption of the one-sample $t$-test is less critical when the sample size is large due to the Central Limit Theorem, which states that the sampling distribution of the sample mean approaches a normal distribution as the sample size increases, regardless of the distribution of the population.
+
+&nbsp;
+&nbsp;
+
+```{r FUNC-appendix, eval=F}
+viz <- function(N, NSim, ES, SD=1, nu=4, sk=20, dist="skew", k=10, p.mix=.5, plot=1, interact=T, ...) {
+  #' Input -
+  #' N:         number of subjects
+  #' NSim:      number of replicates
+  #' ES:        effect size
+  #' SD:        error standard deviation
+  #' nu:        shape parameter (degrees of freedom) of the skewed t
+  #' sk:        skewness parameter of the skewed t
+  #' dist:      distribution that violates the normality,
+  #'              but has the same population mean and variance
+  #'            "skew" (default), a skewed t
+  #'            "unif", a continuous uniform
+  #'            "tri", a symmetric triangular
+  #'            "bim", a bimodal (symmetric when p.mix=0.5)
+  #'            "100sd", still a normal but 100 times the error standard deviation
+  #' k:         maximum number of nearest neighbors used in the KL divergence
+  #' p.mix:     weight of the second modal
+  #' plot:      visualizations
+  #'            1 (default), distributions of the Bayes factors
+  #'            2, distributions of p-values
+  #'            3, scatter plot of the p-values and the Bayes factors
+  #' interact:  TRUE (default), interactive; FALSE, base ECDF
+  #' Dependencies - BayesFactor, EnvStats, fGarch, FNN, ggplot2, plotly, statip
+  #' Output - visualizations
+  
+  computeBF <- function(data) {
+    #' Input -
+    #' data:    one sample
+    #' Output - the Bayes factor
+    set.seed(277)
+    bf <- BayesFactor::ttestBF(data)
+    if (BayesFactor::extractBF(bf)$error < 0.01) { #negligible Monte Carlo errors
+      BayesFactor::extractBF(bf)$bf
+    } else {return(NA)}
+  }
+  
+  BF <- BF_rep <- BF_vio <- pVal <- pVal_rep <- pVal_vio <- numeric(NSim)
+  for (i in 1:NSim) {
+    set.seed(i)
+    y0 <- rnorm(N, ES, SD)
+    pVal[i] <- t.test(y0)$p.value
+    BF[i] <- computeBF(y0)
+
+    set.seed(i-NSim)
+    y0_rep <- rnorm(N, ES, SD)
+    pVal_rep[i] <- t.test(y0_rep)$p.value
+    BF_rep[i] <- computeBF(y0_rep)
+    
+    set.seed(i+NSim)
+    if (dist=="skew") {
+      y1 <- fGarch::rsstd(N, mean=ES, sd=SD, nu=nu, xi=sk)
+      label <- "Skewed"
+      
+    } else if (dist=="unif") {
+      # mean = (a + b) / 2
+      # variance = (b - a)^2 / 12 
+      y1 <- runif(N, min=ES-sqrt(3)*SD, max=ES+sqrt(3)*SD)
+      label <- "Uniform"
+      
+    } else if (dist=="tri") {
+      # mean = (a + b) / 2
+      # variance = (b - a)^2 / 24
+      a <- ES - sqrt(6) * SD
+      b <- ES + sqrt(6) * SD
+      u <- runif(N) #generate from U(0,1)
+      y1 <- ifelse(u < 0.5,
+                   a+sqrt((b-a)^2*u/2),
+                   b-sqrt((b-a)^2*(1-u)/2)) #inverse transformation method
+      label <- "Triangular"
+      
+    } else if (dist=="bim") {
+      sd_eq <- sqrt(SD^2-0.45^2/(p.mix*(1-p.mix)))
+      y1 <- EnvStats::rnormMix(N, mean1=ES-0.45/(1-p.mix), mean2=ES+0.45/p.mix, 
+                               sd1=sd_eq, sd2=sd_eq, p.mix=p.mix)
+      label <- ifelse(p.mix==0.5, "Bimodal", "Bimodal (asymm)")
+      
+    } else if (dist=="100sd") {
+      y1 <- rnorm(N, ES, SD*100)
+      label <- "Normal (100×SD)"
+      
+    } else {stop("Bad Input!")}
+    pVal_vio[i] <- t.test(y1)$p.value
+    BF_vio[i] <- computeBF(y1)
+  }
+  
+  df <- data.frame("Model"=factor(rep(c("Normal","Normal (rep)",label),each=NSim),
+                                  levels=c("Normal","Normal (rep)",label)),
+                   "pVal"=c(pVal, pVal_rep, pVal_vio))
+  if (plot %in% c(1,3)) {
+    if (ES==0) { #null
+      df$BF <- 1/c(BF, BF_rep, BF_vio) #BF01
+      ylab <- expression(italic("BF")["01"])
+      yline <- c(1/3,3); ytext <- c("1/3","3")
+    } else {
+      df$BF <- log(c(BF, BF_rep, BF_vio)) #log(BF10)
+      ylab <- expression("ln("~italic("BF")[10]~")")
+      yline <- c(-log(3),log(3)); ytext <- c("-ln3","ln3")
+    }
+  }
+  
+  if (plot==1) { #distributions of the Bayes factors
+    KL_div_ref <- FNN::KL.divergence(BF, BF_rep, k=k)
+    KL_div <- FNN::KL.divergence(BF, BF_vio, k=k)
+    KL_text <- "the Bayes factors"
+    KS_ref <- stats::ks.test(BF, BF_rep)
+    KS <- stats::ks.test(BF, BF_vio)
+    # HD_ref <- statip::hellinger(BF, BF_rep, 0, Inf)
+    # HD <- statip::hellinger(BF, BF_vio, 0, Inf) #the integral is probably divergent!
+    if (ES==0) { #null
+      df$err1 <- df$BF < 1/3 #type I errors
+      ypos <- 0.1
+    } else {
+      df$pwr <- df$BF > log(3) #statistical power
+      ypos <- 2.1
+    }
+    freq <- table(df[-c(2,3)])[,"TRUE"] / NSim
+    sample_norm <- log(BF)
+    sample_rep <- log(BF_rep)
+    sample_vio <- log(BF_vio)
+    label_x <- ifelse(interact,
+                      "ln(BF10)",
+                      expression("ln("~italic("BF")[10]~")")) #ggplotly may not support the math expression
+    
+    print(ggplot(df, aes(x=Model, y=BF))+
+    geom_boxplot()+
+    labs(x="True Model", y=ylab,
+         title=expression("Bayesian One-Sample"~italic(t)~"-Test"),
+         subtitle=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES))+
+    annotate("text", x=c(0.9,1.9,2.9), y=ypos, label=freq, color="red", angle=90)+
+    geom_hline(yintercept=yline, linetype="dashed", color="gray")+
+    annotate("text", x=Inf, y=yline[1], label=ytext[1], hjust=1.1, vjust=-0.5, color="gray")+
+    annotate("text", x=Inf, y=yline[2], label=ytext[2], hjust=1.1, vjust=-0.5, color="gray")+
+    theme_classic())
+
+    
+  } else if (plot==2) { #distributions of p-values
+    KL_div_ref <- FNN::KL.divergence(pVal, pVal_rep, k=k)
+    KL_div <- FNN::KL.divergence(pVal, pVal_vio, k=k)
+    KL_text <- "p-values"
+    KS_ref <- stats::ks.test(pVal, pVal_rep)
+    KS <- stats::ks.test(pVal, pVal_vio)
+    if (ES==0) { #maximum number of subdivisions reached!
+      HD_ref <- statip::hellinger(pVal, pVal_rep, 0, 1)
+      HD <- statip::hellinger(pVal, pVal_vio, 0, 1)
+    }
+    typeI <- c(sum(pVal < .05), sum(pVal_rep < .05), sum(pVal_vio < .05)) / NSim
+    sample_norm <-pVal
+    sample_rep <- pVal_rep
+    sample_vio <- pVal_vio
+    label_x <- ifelse(interact,
+                      "P-Value",
+                      expression(italic("P")~"-Value"))  #ggplotly may not support the math expression
+    
+    print(ggplot(df, aes(x=Model, y=pVal))+
+    geom_boxplot()+
+    labs(x="True Model", y=expression(italic("P")~"-Value"),
+         title=expression("One-Sample"~italic(t)~"-Test"),
+         subtitle=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES))+
+    annotate("text", x=c(0.9,1.9,2.9), y=.015, label=typeI, color="red", angle=90)+
+    geom_hline(yintercept=.05, linetype="dotted", color="gray")+
+    geom_hline(yintercept=0, linetype="dashed", color="gray")+
+    geom_hline(yintercept=1, linetype="dashed", color="gray")+
+    scale_y_continuous(breaks=c(.01,.05,.1,1))+
+    theme_classic())
+
+
+  } else if (plot==3) { #scatter plot of the p-values and the Bayes factors
+    print(ggplot(df, aes(pVal, BF))+
+    geom_point(size=0.5,color="#8263d9",alpha=.2)+
+    facet_grid(. ~ Model)+
+    geom_hline(yintercept=yline,linetype="dashed")+
+    geom_vline(xintercept=.05,color="red")+
+    scale_x_continuous(breaks=c(.05,1))+
+    annotate("text", x=Inf, y=yline[1], label=ytext[1], hjust=1.1, vjust=-0.5, color="gray")+
+    annotate("text", x=Inf, y=yline[2], label=ytext[2], hjust=1.1, vjust=-0.5, color="gray")+
+    labs(x=expression(italic("P")~"-Value"),y=ylab,
+         title=expression("One-Sample"~italic(t)~"-Test"),
+         subtitle=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES))+
+    theme_classic())
+  
+    print(ggplot(df, aes(pVal, BF, color=Model))+
+      geom_point(size=0.5,alpha=.1)+
+      scale_color_manual(values=c("#bac2ff", "#4e91fd", "#ff4848"))+
+      geom_hline(yintercept=yline,linetype="dashed")+
+      geom_vline(xintercept=.05,color="red")+
+      scale_x_continuous(breaks=c(.05,1))+
+      annotate("text", x=Inf, y=yline[1], label=ytext[1], hjust=1.1, vjust=-0.5, color="gray")+
+      annotate("text", x=Inf, y=yline[2], label=ytext[2], hjust=1.1, vjust=-0.5, color="gray")+
+      labs(x=expression(italic("P")~"-Value"),y=ylab)+
+      theme_classic()+
+      theme(legend.position="bottom")+
+      guides(colour=guide_legend(override.aes=list(size=3, alpha=1),nrow=1)))
+    
+  } else {stop("Bad Input!")}
+  
+  if (plot %in% c(1,2)) {
+    KL_div <- KL_div[KL_div < Inf & KL_div >= 0]
+    KL_div_ref <- KL_div_ref[KL_div_ref < Inf & KL_div_ref >= 0]
+    cat("The overall KL divergence between the distributions of", KL_text,
+        "\n  under model misspecification is", round(mean(KL_div),3),
+        "nats, \nwhile the overall KL divergence under correct specification is", round(mean(KL_div_ref),3),
+        "nats, \n  given", k, "nearest neighbors and", NSim, "replicates.")
+    cat("\n\n")
+    if (plot==2 & ES==0) {
+      cat("The Hellinger distance between the distributions of", KL_text,
+        "\n is", round(HD,3), "under model misspecification,",
+        "\nwhile the Hellinger distance is", round(HD_ref,3), "under correct specification.")
+      cat("\n\n")
+    }
+    cat("The two-sample KS tests show D =", round(KS$statistic,3), "and p-value =", round(KS$p.value,3),
+        "under model misspecification, \n  and D =",
+        round(KS_ref$statistic,3), "and p-value =", round(KS_ref$p.value,3), "under correct specification.")
+    ecdf_norm <- stats::ecdf(sample_norm) #compute an empirical cumulative distribution function
+    ecdf_rep <- stats::ecdf(sample_rep)
+    ecdf_vio <- stats::ecdf(sample_vio)
+
+    if(interact) { #interactive 
+    ecdf_obj <- data.frame("x"=c(sample_norm, sample_rep, sample_vio),
+                           "y"=c(ecdf_norm(sample_norm), ecdf_rep(sample_rep), ecdf_vio(sample_vio)),
+                           "Model"=factor(rep(c("Normal", "Normal (rep)", label), each=NSim)))
+    
+    ggplotly(ggplot(ecdf_obj, aes(x, y, color=Model))+
+                 geom_step()+xlab(label_x)+ylab("ECDF")+
+                 ggtitle(paste0("Empirical CDF Comparison, N.S. = ",N,
+                                ", N.R. = ",NSim,", ES = ",ES))+
+                 scale_color_manual(values=c("black","blue","red"))+
+                 geom_hline(yintercept=c(0,1),linetype="dashed",color="gray")+
+                 theme_classic())
+    
+    } else { #base
+      plot(ecdf_norm, main="Empirical CDF Comparison", xlab=label_x, ylab="ECDF",
+           sub=paste0("Number of Subjects = ",N,", Number of Replicates = ",NSim,", Effect Size = ",ES), ...)
+      lines(ecdf_rep, col="blue")
+      lines(ecdf_vio, col="red")
+      legend("bottomright", legend=c("Normal","Normal (rep)",label), col=c("black","blue","red"), lwd=2)
+    }
+  }
+}
+```
+
+&nbsp;
+
+<a href="#top"> scroll to top </a>
+
+&nbsp;
+&nbsp;
+

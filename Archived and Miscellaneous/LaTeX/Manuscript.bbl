@@ -1,0 +1,971 @@
+\begin{thebibliography}{106}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Article
+\bibitem[{Allen et~al.(2023)Allen, Chang, Neelon, Chang, Kim, Li, Ma and
+  Chung}]{allen_bayesian_2023}
+\bibinfo{author}{Allen, C.}, \bibinfo{author}{Chang, Y.},
+  \bibinfo{author}{Neelon, B.}, \bibinfo{author}{Chang, W.},
+  \bibinfo{author}{Kim, H.J.}, \bibinfo{author}{Li, Z.}, \bibinfo{author}{Ma,
+  Q.}, \bibinfo{author}{Chung, D.}, \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{A {Bayesian} multivariate mixture model for high
+  throughput spatial transcriptomics}.
+\newblock \bibinfo{journal}{Biometrics} \bibinfo{volume}{79},
+  \bibinfo{pages}{1775--1787}.
+\newblock \DOIprefix\doi{10.1111/biom.13727}.
+%Type = Article
+\bibitem[{Arnau et~al.(2013)Arnau, Bendayan, Blanca and
+  Bono}]{arnau_effect_2013}
+\bibinfo{author}{Arnau, J.}, \bibinfo{author}{Bendayan, R.},
+  \bibinfo{author}{Blanca, M.J.}, \bibinfo{author}{Bono, R.},
+  \bibinfo{year}{2013}.
+\newblock \bibinfo{title}{The effect of skewness and kurtosis on the robustness
+  of linear mixed models}.
+\newblock \bibinfo{journal}{Behavior Research Methods} \bibinfo{volume}{45},
+  \bibinfo{pages}{873--879}.
+\newblock \DOIprefix\doi{10.3758/s13428-012-0306-x}.
+%Type = Article
+\bibitem[{Barr et~al.(2013)Barr, Levy, Scheepers and Tily}]{barr_random_2013}
+\bibinfo{author}{Barr, D.J.}, \bibinfo{author}{Levy, R.},
+  \bibinfo{author}{Scheepers, C.}, \bibinfo{author}{Tily, H.J.},
+  \bibinfo{year}{2013}.
+\newblock \bibinfo{title}{Random effects structure for confirmatory hypothesis
+  testing: {Keep} it maximal}.
+\newblock \bibinfo{journal}{Journal of Memory and Language}
+  \bibinfo{volume}{68}, \bibinfo{pages}{255--278}.
+\newblock \DOIprefix\doi{10.1016/j.jml.2012.11.001}.
+%Type = Article
+\bibitem[{Bartlett(1957)}]{bartlett_comment_1957}
+\bibinfo{author}{Bartlett, M.S.}, \bibinfo{year}{1957}.
+\newblock \bibinfo{title}{A comment on {D}. {V}. {Lindley}'s statistical
+  paradox}.
+\newblock \bibinfo{journal}{Biometrika} \bibinfo{volume}{44},
+  \bibinfo{pages}{533--534}.
+\newblock \DOIprefix\doi{10.1093/biomet/44.3-4.533}.
+%Type = Misc
+\bibitem[{Bates et~al.(2015a)Bates, Kliegl, Vasishth and
+  Baayen}]{bates_parsimonious_2015}
+\bibinfo{author}{Bates, D.}, \bibinfo{author}{Kliegl, R.},
+  \bibinfo{author}{Vasishth, S.}, \bibinfo{author}{Baayen, H.},
+  \bibinfo{year}{2015}a.
+\newblock \bibinfo{title}{Parsimonious mixed models}.
+\newblock \DOIprefix\doi{10.48550/arXiv.1506.04967}.
+%Type = Article
+\bibitem[{Bates et~al.(2015b)Bates, Mächler, Bolker and
+  Walker}]{bates_fitting_2015}
+\bibinfo{author}{Bates, D.}, \bibinfo{author}{Mächler, M.},
+  \bibinfo{author}{Bolker, B.}, \bibinfo{author}{Walker, S.},
+  \bibinfo{year}{2015}b.
+\newblock \bibinfo{title}{Fitting linear mixed-effects models using lme4}.
+\newblock \bibinfo{journal}{Journal of Statistical Software}
+  \bibinfo{volume}{67}, \bibinfo{pages}{1--48}.
+\newblock \DOIprefix\doi{10.18637/jss.v067.i01}.
+%Type = Article
+\bibitem[{Bem(2011)}]{bem_feeling_2011}
+\bibinfo{author}{Bem, D.J.}, \bibinfo{year}{2011}.
+\newblock \bibinfo{title}{Feeling the future: {Experimental} evidence for
+  anomalous retroactive influences on cognition and affect}.
+\newblock \bibinfo{journal}{Journal of Personality and Social Psychology}
+  \bibinfo{volume}{100}, \bibinfo{pages}{407--425}.
+\newblock \DOIprefix\doi{10.1037/a0021524}.
+%Type = Article
+\bibitem[{van~den Bergh et~al.(2023)van~den Bergh, Wagenmakers and
+  Aust}]{van_den_bergh_bayesian_2023}
+\bibinfo{author}{van~den Bergh, D.}, \bibinfo{author}{Wagenmakers, E.J.},
+  \bibinfo{author}{Aust, F.}, \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Bayesian repeated-measures analysis of variance: {An}
+  updated methodology implemented in {JASP}}.
+\newblock \bibinfo{journal}{Advances in Methods and Practices in Psychological
+  Science} \bibinfo{volume}{6}, \bibinfo{pages}{1--11}.
+\newblock \DOIprefix\doi{10.1177/25152459231168024}.
+%Type = Article
+\bibitem[{Bradley(1978)}]{bradley_robustness_1978}
+\bibinfo{author}{Bradley, J.V.}, \bibinfo{year}{1978}.
+\newblock \bibinfo{title}{Robustness?}
+\newblock \bibinfo{journal}{British Journal of Mathematical and Statistical
+  Psychology} \bibinfo{volume}{31}, \bibinfo{pages}{144--152}.
+\newblock \DOIprefix\doi{10.1111/j.2044-8317.1978.tb00581.x}.
+%Type = Article
+\bibitem[{Brumback et~al.(2004)Brumback, Hernán, Haneuse and
+  Robins}]{brumback_sensitivity_2004}
+\bibinfo{author}{Brumback, B.A.}, \bibinfo{author}{Hernán, M.A.},
+  \bibinfo{author}{Haneuse, S.J.P.A.}, \bibinfo{author}{Robins, J.M.},
+  \bibinfo{year}{2004}.
+\newblock \bibinfo{title}{Sensitivity analyses for unmeasured confounding
+  assuming a marginal structural model for repeated measures}.
+\newblock \bibinfo{journal}{Statistics in Medicine} \bibinfo{volume}{23},
+  \bibinfo{pages}{749--767}.
+\newblock \DOIprefix\doi{10.1002/sim.1657}.
+%Type = Article
+\bibitem[{Bub et~al.(2021)Bub, Masson and van Noordenne}]{bub_motor_2021}
+\bibinfo{author}{Bub, D.N.}, \bibinfo{author}{Masson, M.E.J.},
+  \bibinfo{author}{van Noordenne, M.}, \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{Motor representations evoked by objects under varying
+  action intentions}.
+\newblock \bibinfo{journal}{Journal of Experimental Psychology: Human
+  Perception and Performance} \bibinfo{volume}{47}, \bibinfo{pages}{53--80}.
+\newblock \DOIprefix\doi{10.1037/xhp0000876}.
+%Type = Book
+\bibitem[{Burdick and Graybill(1992)}]{burdick_confidence_1992}
+\bibinfo{author}{Burdick, R.K.}, \bibinfo{author}{Graybill, F.A.},
+  \bibinfo{year}{1992}.
+\newblock \bibinfo{title}{Confidence intervals on variance components}.
+\newblock \bibinfo{publisher}{Chapman and Hall}, \bibinfo{address}{Boca Raton,
+  FL}.
+\newblock \DOIprefix\doi{10.1201/9781482277142}.
+%Type = Article
+\bibitem[{Chen et~al.(2019)Chen, Yang, Tan, Gu and Chen}]{chen_powerful_2019}
+\bibinfo{author}{Chen, O.}, \bibinfo{author}{Yang, Z.}, \bibinfo{author}{Tan,
+  X.}, \bibinfo{author}{Gu, Z.}, \bibinfo{author}{Chen, J.},
+  \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Powerful postures do not lead to risky behaviors}.
+\newblock \bibinfo{journal}{Journal of Pacific Rim Psychology}
+  \bibinfo{volume}{13}, \bibinfo{pages}{1--7}.
+\newblock \DOIprefix\doi{10.1017/prp.2019.17}.
+%Type = Article
+\bibitem[{Chung et~al.(2015)Chung, Gelman, Rabe-Hesketh, Liu and
+  Dorie}]{chung_weakly_2015}
+\bibinfo{author}{Chung, Y.}, \bibinfo{author}{Gelman, A.},
+  \bibinfo{author}{Rabe-Hesketh, S.}, \bibinfo{author}{Liu, J.},
+  \bibinfo{author}{Dorie, V.}, \bibinfo{year}{2015}.
+\newblock \bibinfo{title}{Weakly informative prior for point estimation of
+  covariance matrices in hierarchical models}.
+\newblock \bibinfo{journal}{Journal of Educational and Behavioral Statistics}
+  \bibinfo{volume}{40}, \bibinfo{pages}{136--157}.
+\newblock \DOIprefix\doi{10.3102/1076998615570945}.
+%Type = Article
+\bibitem[{Cornfield and Tukey(1956)}]{cornfield_average_1956}
+\bibinfo{author}{Cornfield, J.}, \bibinfo{author}{Tukey, J.W.},
+  \bibinfo{year}{1956}.
+\newblock \bibinfo{title}{Average values of mean squares in factorials}.
+\newblock \bibinfo{journal}{Annals of Mathematical Statistics}
+  \bibinfo{volume}{27}, \bibinfo{pages}{907--949}.
+\newblock \DOIprefix\doi{10.1214/aoms/1177728067}.
+%Type = Article
+\bibitem[{Cousineau(2019)}]{cousineau_correlation-adjusted_2019}
+\bibinfo{author}{Cousineau, D.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Correlation-adjusted standard errors and confidence
+  intervals for within-subject designs: {A} simple multiplicative approach}.
+\newblock \bibinfo{journal}{The Quantitative Methods for Psychology}
+  \bibinfo{volume}{15}, \bibinfo{pages}{226--241}.
+\newblock \DOIprefix\doi{10.20982/tqmp.15.3.p226}.
+%Type = Article
+\bibitem[{Crowder(2001)}]{crowder_repeated_2001}
+\bibinfo{author}{Crowder, M.}, \bibinfo{year}{2001}.
+\newblock \bibinfo{title}{On repeated measures analysis with misspecified
+  covariance structure}.
+\newblock \bibinfo{journal}{Journal of the Royal Statistical Society Series B:
+  Statistical Methodology} \bibinfo{volume}{63}, \bibinfo{pages}{55--62}.
+\newblock \DOIprefix\doi{10.1111/1467-9868.00275}.
+%Type = Article
+\bibitem[{Dong and Wedel(2017)}]{dong_banova_2017}
+\bibinfo{author}{Dong, C.}, \bibinfo{author}{Wedel, M.}, \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{{BANOVA}: {An} {R} package for hierarchical
+  {Bayesian} {ANOVA}}.
+\newblock \bibinfo{journal}{Journal of Statistical Software}
+  \bibinfo{volume}{81}, \bibinfo{pages}{1--46}.
+\newblock \DOIprefix\doi{10.18637/jss.v081.i09}.
+%Type = Article
+\bibitem[{van Doorn et~al.(2023a)van Doorn, Aust, Haaf, Stefan and
+  Wagenmakers}]{van_doorn_bayes_2023}
+\bibinfo{author}{van Doorn, J.}, \bibinfo{author}{Aust, F.},
+  \bibinfo{author}{Haaf, J.M.}, \bibinfo{author}{Stefan, A.M.},
+  \bibinfo{author}{Wagenmakers, E.J.}, \bibinfo{year}{2023}a.
+\newblock \bibinfo{title}{Bayes factors for mixed models}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{1--13}.
+\newblock \DOIprefix\doi{10.1007/s42113-021-00113-2}.
+%Type = Article
+\bibitem[{van Doorn et~al.(2023b)van Doorn, Aust, Haaf, Stefan and
+  Wagenmakers}]{van_doorn_bayes_2023-1}
+\bibinfo{author}{van Doorn, J.}, \bibinfo{author}{Aust, F.},
+  \bibinfo{author}{Haaf, J.M.}, \bibinfo{author}{Stefan, A.M.},
+  \bibinfo{author}{Wagenmakers, E.J.}, \bibinfo{year}{2023}b.
+\newblock \bibinfo{title}{Bayes factors for mixed models: {Perspective} on
+  responses}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{127--139}.
+\newblock \DOIprefix\doi{10.1007/s42113-022-00158-x}.
+%Type = Article
+\bibitem[{van Doorn et~al.(2023c)van Doorn, Haaf, Stefan, Wagenmakers, Cox,
+  Davis-Stober, Heathcote, Heck, Kalish, Kellen, Matzke, Morey, Nicenboim, van
+  Ravenzwaaij, Rouder, Schad, Shiffrin, Singmann, Vasishth, Veríssimo,
+  Bockting, Chandramouli, Dunn, Gronau, Linde, McMullin, Navarro, Schnuerch,
+  Yadav and Aust}]{van_doorn_bayes_2023-2}
+\bibinfo{author}{van Doorn, J.}, \bibinfo{author}{Haaf, J.M.},
+  \bibinfo{author}{Stefan, A.M.}, \bibinfo{author}{Wagenmakers, E.J.},
+  \bibinfo{author}{Cox, G.E.}, \bibinfo{author}{Davis-Stober, C.P.},
+  \bibinfo{author}{Heathcote, A.}, \bibinfo{author}{Heck, D.W.},
+  \bibinfo{author}{Kalish, M.}, \bibinfo{author}{Kellen, D.},
+  \bibinfo{author}{Matzke, D.}, \bibinfo{author}{Morey, R.D.},
+  \bibinfo{author}{Nicenboim, B.}, \bibinfo{author}{van Ravenzwaaij, D.},
+  \bibinfo{author}{Rouder, J.N.}, \bibinfo{author}{Schad, D.J.},
+  \bibinfo{author}{Shiffrin, R.M.}, \bibinfo{author}{Singmann, H.},
+  \bibinfo{author}{Vasishth, S.}, \bibinfo{author}{Veríssimo, J.},
+  \bibinfo{author}{Bockting, F.}, \bibinfo{author}{Chandramouli, S.},
+  \bibinfo{author}{Dunn, J.C.}, \bibinfo{author}{Gronau, Q.F.},
+  \bibinfo{author}{Linde, M.}, \bibinfo{author}{McMullin, S.D.},
+  \bibinfo{author}{Navarro, D.}, \bibinfo{author}{Schnuerch, M.},
+  \bibinfo{author}{Yadav, H.}, \bibinfo{author}{Aust, F.},
+  \bibinfo{year}{2023}c.
+\newblock \bibinfo{title}{Bayes factors for mixed models: {A} discussion}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{140--158}.
+\newblock \DOIprefix\doi{10.1007/s42113-022-00160-3}.
+%Type = Article
+\bibitem[{Faghihi et~al.(2019)Faghihi, Garcia and Vaid}]{faghihi_spatial_2019}
+\bibinfo{author}{Faghihi, N.}, \bibinfo{author}{Garcia, O.},
+  \bibinfo{author}{Vaid, J.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Spatial bias in figure placement in representational
+  drawing: {Associations} with handedness and script directionality}.
+\newblock \bibinfo{journal}{Laterality: Asymmetries of Body, Brain and
+  Cognition} \bibinfo{volume}{24}, \bibinfo{pages}{614--630}.
+\newblock \DOIprefix\doi{10.1080/1357650X.2018.1561708}.
+%Type = Article
+\bibitem[{Faulkenberry et~al.(2020)Faulkenberry, Ly and
+  Wagenmakers}]{faulkenberry_bayesian_2020}
+\bibinfo{author}{Faulkenberry, T.J.}, \bibinfo{author}{Ly, A.},
+  \bibinfo{author}{Wagenmakers, E.J.}, \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Bayesian inference in numerical cognition: {A}
+  tutorial using {JASP}}.
+\newblock \bibinfo{journal}{Journal of Numerical Cognition}
+  \bibinfo{volume}{6}, \bibinfo{pages}{231--259}.
+\newblock \DOIprefix\doi{10.5964/jnc.v6i2.288}.
+%Type = Article
+\bibitem[{Gelman(2005)}]{gelman_analysis_2005}
+\bibinfo{author}{Gelman, A.}, \bibinfo{year}{2005}.
+\newblock \bibinfo{title}{Analysis of variance—{Why} it is more important
+  than ever}.
+\newblock \bibinfo{journal}{The Annals of Statistics} \bibinfo{volume}{33},
+  \bibinfo{pages}{1--53}.
+\newblock \DOIprefix\doi{10.1214/009053604000001048}.
+%Type = Book
+\bibitem[{Girden(1992)}]{girden_anova_1992}
+\bibinfo{author}{Girden, E.R.}, \bibinfo{year}{1992}.
+\newblock \bibinfo{title}{{ANOVA}: {Repeated} measures}.
+\newblock Sage {University} {Paper} {Series} on {Quantitative} {Applications}
+  in the {Social} {Sciences}, \bibinfo{publisher}{Sage},
+  \bibinfo{address}{Newbury Park, CA}.
+\newblock \DOIprefix\doi{10.4135/9781412983419}.
+%Type = Article
+\bibitem[{Golden(1995)}]{golden_making_1995}
+\bibinfo{author}{Golden, R.M.}, \bibinfo{year}{1995}.
+\newblock \bibinfo{title}{Making correct statistical inferences using a wrong
+  probability model}.
+\newblock \bibinfo{journal}{Journal of Mathematical Psychology}
+  \bibinfo{volume}{39}, \bibinfo{pages}{3--20}.
+\newblock \DOIprefix\doi{10.1006/jmps.1995.1002}.
+%Type = Article
+\bibitem[{Golden(2000)}]{golden_statistical_2000}
+\bibinfo{author}{Golden, R.M.}, \bibinfo{year}{2000}.
+\newblock \bibinfo{title}{Statistical tests for comparing possibly misspecified
+  and nonnested models}.
+\newblock \bibinfo{journal}{Journal of Mathematical Psychology}
+  \bibinfo{volume}{44}, \bibinfo{pages}{153--170}.
+\newblock \DOIprefix\doi{10.1006/jmps.1999.1281}.
+%Type = Article
+\bibitem[{Grange et~al.(2017)Grange, Kowalczyk and
+  O'Loughlin}]{grange_effect_2017}
+\bibinfo{author}{Grange, J.A.}, \bibinfo{author}{Kowalczyk, A.W.},
+  \bibinfo{author}{O'Loughlin, R.}, \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{The effect of episodic retrieval on inhibition in
+  task switching}.
+\newblock \bibinfo{journal}{Journal of Experimental Psychology: Human
+  Perception and Performance} \bibinfo{volume}{43},
+  \bibinfo{pages}{1568--1583}.
+\newblock \DOIprefix\doi{10.1037/xhp0000411}.
+%Type = Article
+\bibitem[{Greenhouse and Geisser(1959)}]{greenhouse_methods_1959}
+\bibinfo{author}{Greenhouse, S.W.}, \bibinfo{author}{Geisser, S.},
+  \bibinfo{year}{1959}.
+\newblock \bibinfo{title}{On methods in the analysis of profile data}.
+\newblock \bibinfo{journal}{Psychometrika} \bibinfo{volume}{24},
+  \bibinfo{pages}{95--112}.
+\newblock \DOIprefix\doi{10.1007/BF02289823}.
+%Type = Article
+\bibitem[{Gustafson(2001)}]{gustafson_measuring_2001}
+\bibinfo{author}{Gustafson, P.}, \bibinfo{year}{2001}.
+\newblock \bibinfo{title}{On measuring sensitivity to parametric model
+  misspecification}.
+\newblock \bibinfo{journal}{Journal of the Royal Statistical Society Series B:
+  Statistical Methodology} \bibinfo{volume}{63}, \bibinfo{pages}{81--94}.
+\newblock \DOIprefix\doi{10.1111/1467-9868.00277}.
+%Type = Book
+\bibitem[{Gustafson(2015)}]{gustafson_bayesian_2015}
+\bibinfo{author}{Gustafson, P.}, \bibinfo{year}{2015}.
+\newblock \bibinfo{title}{Bayesian inference for partially identified models:
+  {Exploring} the limits of limited data}.
+\newblock \bibinfo{publisher}{Chapman and Hall}, \bibinfo{address}{Boca Raton,
+  FL}.
+\newblock \DOIprefix\doi{10.1201/b18308}.
+%Type = Article
+\bibitem[{Haaf and Rouder(2017)}]{haaf_developing_2017}
+\bibinfo{author}{Haaf, J.M.}, \bibinfo{author}{Rouder, J.N.},
+  \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Developing constraint in {Bayesian} mixed models}.
+\newblock \bibinfo{journal}{Psychological Methods} \bibinfo{volume}{22},
+  \bibinfo{pages}{779--798}.
+\newblock \DOIprefix\doi{10.1037/met0000156}.
+%Type = Article
+\bibitem[{Heathcote and Matzke(2023)}]{heathcote_limits_2023}
+\bibinfo{author}{Heathcote, A.}, \bibinfo{author}{Matzke, D.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{The limits of marginality}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{28--34}.
+\newblock \DOIprefix\doi{10.1007/s42113-021-00120-3}.
+%Type = Article
+\bibitem[{Heck and Bockting(2023)}]{heck_benefits_2023}
+\bibinfo{author}{Heck, D.W.}, \bibinfo{author}{Bockting, F.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Benefits of {Bayesian} model averaging for
+  mixed-effects modeling}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{35--49}.
+\newblock \DOIprefix\doi{10.1007/s42113-021-00118-x}.
+%Type = Article
+\bibitem[{Held and Ott(2018)}]{held_p-values_2018}
+\bibinfo{author}{Held, L.}, \bibinfo{author}{Ott, M.}, \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{On p-values and {Bayes} factors}.
+\newblock \bibinfo{journal}{Annual Review of Statistics and Its Application}
+  \bibinfo{volume}{5}, \bibinfo{pages}{393--419}.
+\newblock \DOIprefix\doi{10.1146/annurev-statistics-031017-100307}.
+%Type = Article
+\bibitem[{Hernán et~al.(2002)Hernán, Brumback and
+  Robins}]{hernan_estimating_2002}
+\bibinfo{author}{Hernán, M.A.}, \bibinfo{author}{Brumback, B.A.},
+  \bibinfo{author}{Robins, J.M.}, \bibinfo{year}{2002}.
+\newblock \bibinfo{title}{Estimating the causal effect of zidovudine on {CD4}
+  count with a marginal structural model for repeated measures}.
+\newblock \bibinfo{journal}{Statistics in Medicine} \bibinfo{volume}{21},
+  \bibinfo{pages}{1689--1709}.
+\newblock \DOIprefix\doi{10.1002/sim.1144}.
+%Type = Article
+\bibitem[{Hershman et~al.(2024)Hershman, Dadon, Kiesel and
+  Henik}]{hershman_resting_2024}
+\bibinfo{author}{Hershman, R.}, \bibinfo{author}{Dadon, G.},
+  \bibinfo{author}{Kiesel, A.}, \bibinfo{author}{Henik, A.},
+  \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Resting {Stroop} task: {Evidence} of task conflict in
+  trials with no required response}.
+\newblock \bibinfo{journal}{Psychonomic Bulletin \& Review}
+  \bibinfo{volume}{31}, \bibinfo{pages}{353--360}.
+\newblock \DOIprefix\doi{10.3758/s13423-023-02354-7}.
+%Type = Article
+\bibitem[{Hinne et~al.(2020)Hinne, Gronau and
+  Wagenmakers}]{hinne_conceptual_2020}
+\bibinfo{author}{Hinne, M.}, \bibinfo{author}{Gronau, Q.F.},
+  \bibinfo{author}{Wagenmakers, E.J.}, \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{A conceptual introduction to {Bayesian} model
+  averaging}.
+\newblock \bibinfo{journal}{Advances in Methods and Practices in Psychological
+  Science} \bibinfo{volume}{3}, \bibinfo{pages}{200--215}.
+\newblock \DOIprefix\doi{10.1177/2515245919898657}.
+%Type = Book
+\bibitem[{Howell(2012)}]{howell_statistical_2012}
+\bibinfo{author}{Howell, D.C.}, \bibinfo{year}{2012}.
+\newblock \bibinfo{title}{Statistical methods for psychology}.
+\newblock \bibinfo{edition}{8} ed., \bibinfo{publisher}{Wadsworth},
+  \bibinfo{address}{Belmont, CA}.
+%Type = Article
+\bibitem[{Huynh and Feldt(1970)}]{huynh_conditions_1970}
+\bibinfo{author}{Huynh, H.}, \bibinfo{author}{Feldt, L.S.},
+  \bibinfo{year}{1970}.
+\newblock \bibinfo{title}{Conditions under which mean square ratios in repeated
+  measurements designs have exact {F}-distributions}.
+\newblock \bibinfo{journal}{Journal of the American Statistical Association}
+  \bibinfo{volume}{65}, \bibinfo{pages}{1582--1589}.
+\newblock \DOIprefix\doi{10.1080/01621459.1970.10481187}.
+%Type = Article
+\bibitem[{Huynh and Feldt(1976)}]{huynh_estimation_1976}
+\bibinfo{author}{Huynh, H.}, \bibinfo{author}{Feldt, L.S.},
+  \bibinfo{year}{1976}.
+\newblock \bibinfo{title}{Estimation of the {Box} correction for degrees of
+  freedom from sample data in randomised block and split-plot designs}.
+\newblock \bibinfo{journal}{Journal of Educational Statistics}
+  \bibinfo{volume}{1}, \bibinfo{pages}{69--82}.
+\newblock \DOIprefix\doi{10.2307/1164736}.
+%Type = Article
+\bibitem[{Iachine et~al.(2010)Iachine, Petersen and
+  Kyvik}]{iachine_robust_2010}
+\bibinfo{author}{Iachine, I.}, \bibinfo{author}{Petersen, H.C.},
+  \bibinfo{author}{Kyvik, K.O.}, \bibinfo{year}{2010}.
+\newblock \bibinfo{title}{Robust tests for the equality of variances for
+  clustered data}.
+\newblock \bibinfo{journal}{Journal of Statistical Computation and Simulation}
+  \bibinfo{volume}{80}, \bibinfo{pages}{365--377}.
+\newblock \DOIprefix\doi{10.1080/00949650802641841}.
+%Type = Article
+\bibitem[{Jacqmin-Gadda et~al.(2007)Jacqmin-Gadda, Sibillot, Proust, Molina and
+  Thiébaut}]{jacqmin-gadda_robustness_2007}
+\bibinfo{author}{Jacqmin-Gadda, H.}, \bibinfo{author}{Sibillot, S.},
+  \bibinfo{author}{Proust, C.}, \bibinfo{author}{Molina, J.M.},
+  \bibinfo{author}{Thiébaut, R.}, \bibinfo{year}{2007}.
+\newblock \bibinfo{title}{Robustness of the linear mixed model to misspecified
+  error distribution}.
+\newblock \bibinfo{journal}{Computational Statistics \& Data Analysis}
+  \bibinfo{volume}{51}, \bibinfo{pages}{5142--5154}.
+\newblock \DOIprefix\doi{10.1016/j.csda.2006.05.021}.
+%Type = Book
+\bibitem[{Janczyk and Pfister(2023)}]{janczyk_understanding_2023}
+\bibinfo{author}{Janczyk, M.}, \bibinfo{author}{Pfister, R.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Understanding inferential statistics: {From} {A} for
+  significance test to {Z} for confidence interval}.
+\newblock \bibinfo{edition}{3} ed., \bibinfo{publisher}{Springer},
+  \bibinfo{address}{Berlin, Germany}.
+\newblock \DOIprefix\doi{10.1007/978-3-662-66786-6\_10}.
+%Type = Misc
+\bibitem[{{JASP Team}(2025)}]{jasp_team_jasp_2025}
+\bibinfo{author}{{JASP Team}}, \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{{JASP}}.
+\newblock \URLprefix \url{https://jasp-stats.org/}.
+%Type = Article
+\bibitem[{Jeffreys(1935)}]{jeffreys_tests_1935}
+\bibinfo{author}{Jeffreys, H.}, \bibinfo{year}{1935}.
+\newblock \bibinfo{title}{Some tests of significance, treated by the theory of
+  probability}.
+\newblock \bibinfo{journal}{Mathematical Proceedings of the Cambridge
+  Philosophical Society} \bibinfo{volume}{31}, \bibinfo{pages}{203--222}.
+\newblock \DOIprefix\doi{10.1017/S030500410001330X}.
+%Type = Article
+\bibitem[{Jeffreys(1946)}]{jeffreys_invariant_1946}
+\bibinfo{author}{Jeffreys, H.}, \bibinfo{year}{1946}.
+\newblock \bibinfo{title}{An invariant form for the prior probability in
+  estimation problems}.
+\newblock \bibinfo{journal}{Proceedings of the Royal Society of London. Series
+  A, Mathematical and Physical Sciences} \bibinfo{volume}{186},
+  \bibinfo{pages}{453--461}.
+\newblock \DOIprefix\doi{10.1098/rspa.1946.0056}.
+%Type = Book
+\bibitem[{Jeffreys(1961)}]{jeffreys_theory_1961}
+\bibinfo{author}{Jeffreys, H.}, \bibinfo{year}{1961}.
+\newblock \bibinfo{title}{Theory of probability}.
+\newblock \bibinfo{edition}{3} ed., \bibinfo{publisher}{Oxford University
+  Press}, \bibinfo{address}{Oxford, UK}.
+\newblock \URLprefix
+  \url{https://global.oup.com/academic/product/theory-of-probability-9780198503682}.
+%Type = Article
+\bibitem[{Kantorovich(1960)}]{kantorovich_mathematical_1960}
+\bibinfo{author}{Kantorovich, L.V.}, \bibinfo{year}{1960}.
+\newblock \bibinfo{title}{Mathematical methods of organizing and planning
+  production}.
+\newblock \bibinfo{journal}{Management Science} \bibinfo{volume}{6},
+  \bibinfo{pages}{366--422}.
+\newblock \DOIprefix\doi{10.1287/mnsc.6.4.366}.
+%Type = Article
+\bibitem[{Kass and Raftery(1995)}]{kass_bayes_1995}
+\bibinfo{author}{Kass, R.E.}, \bibinfo{author}{Raftery, A.E.},
+  \bibinfo{year}{1995}.
+\newblock \bibinfo{title}{Bayes factors}.
+\newblock \bibinfo{journal}{Journal of the American Statistical Association}
+  \bibinfo{volume}{90}, \bibinfo{pages}{773--795}.
+\newblock \DOIprefix\doi{10.1080/01621459.1995.10476572}.
+%Type = Article
+\bibitem[{Klauer et~al.(2025)Klauer, Meyer-Grant and
+  Kellen}]{klauer_bayes_2025}
+\bibinfo{author}{Klauer, K.C.}, \bibinfo{author}{Meyer-Grant, C.G.},
+  \bibinfo{author}{Kellen, D.}, \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{On {Bayes} factors for hypothesis tests}.
+\newblock \bibinfo{journal}{Psychonomic Bulletin \& Review}
+  \bibinfo{volume}{32}, \bibinfo{pages}{1070--1094}.
+\newblock \DOIprefix\doi{10.3758/s13423-024-02612-2}.
+%Type = Book
+\bibitem[{Kruschke(2014)}]{kruschke_doing_2014}
+\bibinfo{author}{Kruschke, J.K.}, \bibinfo{year}{2014}.
+\newblock \bibinfo{title}{Doing {Bayesian} data analysis: {A} tutorial with
+  {R}, {JAGS}, and {Stan}}.
+\newblock \bibinfo{edition}{2} ed., \bibinfo{publisher}{Academic Press},
+  \bibinfo{address}{London, UK}.
+\newblock \DOIprefix\doi{10.1016/B978-0-12-405888-0.09999-2}.
+%Type = Article
+\bibitem[{Lane(2016)}]{lane_assumption_2016}
+\bibinfo{author}{Lane, D.M.}, \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{The assumption of sphericity in repeated-measures
+  designs: {What} it means and what to do when it is violated}.
+\newblock \bibinfo{journal}{Quantitative Methods for Psychology}
+  \bibinfo{volume}{12}, \bibinfo{pages}{114--122}.
+\newblock \DOIprefix\doi{10.20982/tqmp.12.2.p114}.
+%Type = Article
+\bibitem[{Langenberg et~al.(2023)Langenberg, Helm, Günther and
+  Mayer}]{langenberg_understanding_2023}
+\bibinfo{author}{Langenberg, B.}, \bibinfo{author}{Helm, J.L.},
+  \bibinfo{author}{Günther, T.}, \bibinfo{author}{Mayer, A.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Understanding, testing, and relaxing sphericity of
+  repeated measures {ANOVA} with manifest and latent variables using {SEM}}.
+\newblock \bibinfo{journal}{Methodology} \bibinfo{volume}{19},
+  \bibinfo{pages}{60--95}.
+\newblock \DOIprefix\doi{10.5964/meth.8415}.
+%Type = Article
+\bibitem[{LeBeau et~al.(2018)LeBeau, Song and Liu}]{lebeau_model_2018}
+\bibinfo{author}{LeBeau, B.}, \bibinfo{author}{Song, Y.A.},
+  \bibinfo{author}{Liu, W.C.}, \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Model misspecification and assumption violations with
+  the linear mixed model: {A} meta-analysis}.
+\newblock \bibinfo{journal}{Sage Open} \bibinfo{volume}{8},
+  \bibinfo{pages}{1--16}.
+\newblock \DOIprefix\doi{10.1177/2158244018820380}.
+%Type = Article
+\bibitem[{Lee and Nelder(2004)}]{lee_conditional_2004}
+\bibinfo{author}{Lee, Y.}, \bibinfo{author}{Nelder, J.A.},
+  \bibinfo{year}{2004}.
+\newblock \bibinfo{title}{Conditional and marginal models: {Another} view}.
+\newblock \bibinfo{journal}{Statistical Science} \bibinfo{volume}{19},
+  \bibinfo{pages}{219--238}.
+\newblock \DOIprefix\doi{10.1214/088342304000000305}.
+%Type = Article
+\bibitem[{Liang et~al.(2008)Liang, Paulo, Molina, Clyde and
+  Berger}]{liang_mixtures_2008}
+\bibinfo{author}{Liang, F.}, \bibinfo{author}{Paulo, R.},
+  \bibinfo{author}{Molina, G.}, \bibinfo{author}{Clyde, M.A.},
+  \bibinfo{author}{Berger, J.O.}, \bibinfo{year}{2008}.
+\newblock \bibinfo{title}{Mixtures of g priors for {Bayesian} variable
+  selection}.
+\newblock \bibinfo{journal}{Journal of the American Statistical Association}
+  \bibinfo{volume}{103}, \bibinfo{pages}{410--423}.
+\newblock \DOIprefix\doi{10.1198/016214507000001337}.
+%Type = Article
+\bibitem[{Linde and van Ravenzwaaij(2023)}]{linde_bayes_2023}
+\bibinfo{author}{Linde, M.}, \bibinfo{author}{van Ravenzwaaij, D.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Bayes factor model comparisons across parameter
+  values for mixed models}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{14--27}.
+\newblock \DOIprefix\doi{10.1007/s42113-021-00117-y}.
+%Type = Article
+\bibitem[{Lindley(1957)}]{lindley_statistical_1957}
+\bibinfo{author}{Lindley, D.V.}, \bibinfo{year}{1957}.
+\newblock \bibinfo{title}{A statistical paradox}.
+\newblock \bibinfo{journal}{Biometrika} \bibinfo{volume}{44},
+  \bibinfo{pages}{187--192}.
+\newblock \DOIprefix\doi{10.2307/2333251}.
+%Type = Article
+\bibitem[{Liu et~al.(2016)Liu, Zhang and Grimm}]{liu_comparison_2016}
+\bibinfo{author}{Liu, H.}, \bibinfo{author}{Zhang, Z.}, \bibinfo{author}{Grimm,
+  K.J.}, \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{Comparison of inverse {Wishart} and
+  separation-strategy priors for {Bayesian} estimation of covariance parameter
+  matrix in growth curve analysis}.
+\newblock \bibinfo{journal}{Structural Equation Modeling: A Multidisciplinary
+  Journal} \bibinfo{volume}{23}, \bibinfo{pages}{354--367}.
+\newblock \DOIprefix\doi{10.1080/10705511.2015.1057285}.
+%Type = Article
+\bibitem[{Loftus and Masson(1994)}]{loftus_using_1994}
+\bibinfo{author}{Loftus, G.R.}, \bibinfo{author}{Masson, M.E.J.},
+  \bibinfo{year}{1994}.
+\newblock \bibinfo{title}{Using confidence intervals in within-subject
+  designs}.
+\newblock \bibinfo{journal}{Psychonomic Bulletin \& Review}
+  \bibinfo{volume}{1}, \bibinfo{pages}{476--490}.
+\newblock \DOIprefix\doi{10.3758/BF03210951}.
+%Type = Article
+\bibitem[{Ly et~al.(2016)Ly, Verhagen and Wagenmakers}]{ly_harold_2016}
+\bibinfo{author}{Ly, A.}, \bibinfo{author}{Verhagen, J.},
+  \bibinfo{author}{Wagenmakers, E.J.}, \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{Harold {Jeffreys}’s default {Bayes} factor
+  hypothesis tests: {Explanation}, extension, and application in psychology}.
+\newblock \bibinfo{journal}{Journal of Mathematical Psychology}
+  \bibinfo{volume}{72}, \bibinfo{pages}{19--32}.
+\newblock \DOIprefix\doi{10.1016/j.jmp.2015.06.004}.
+%Type = Article
+\bibitem[{Maas and Hox(2004)}]{maas_robustness_2004}
+\bibinfo{author}{Maas, C.J.M.}, \bibinfo{author}{Hox, J.J.},
+  \bibinfo{year}{2004}.
+\newblock \bibinfo{title}{Robustness issues in multilevel regression analysis}.
+\newblock \bibinfo{journal}{Statistica Neerlandica} \bibinfo{volume}{58},
+  \bibinfo{pages}{127--137}.
+\newblock \DOIprefix\doi{10.1046/j.0039-0402.2003.00252.x}.
+%Type = Misc
+\bibitem[{Mathôt(2017)}]{mathot_bayes_2017}
+\bibinfo{author}{Mathôt, S.}, \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Bayes like a {Baws}: {Interpreting} {Bayesian}
+  repeated measures in {JASP}}.
+\newblock \URLprefix
+  \url{https://www.cogsci.nl/blog/interpreting-bayesian-repeated-measures-in-jasp}.
+%Type = Article
+\bibitem[{Matuschek et~al.(2017)Matuschek, Kliegl, Vasishth, Baayen and
+  Bates}]{matuschek_balancing_2017}
+\bibinfo{author}{Matuschek, H.}, \bibinfo{author}{Kliegl, R.},
+  \bibinfo{author}{Vasishth, S.}, \bibinfo{author}{Baayen, H.},
+  \bibinfo{author}{Bates, D.}, \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Balancing type {I} error and power in linear mixed
+  models}.
+\newblock \bibinfo{journal}{Journal of Memory and Language}
+  \bibinfo{volume}{94}, \bibinfo{pages}{305--315}.
+\newblock \DOIprefix\doi{10.1016/j.jml.2017.01.001}.
+%Type = Article
+\bibitem[{Mauchly(1940)}]{mauchly_significance_1940}
+\bibinfo{author}{Mauchly, J.W.}, \bibinfo{year}{1940}.
+\newblock \bibinfo{title}{Significance test for sphericity of a normal
+  n-variate distribution}.
+\newblock \bibinfo{journal}{The Annals of Mathematical Statistics}
+  \bibinfo{volume}{11}, \bibinfo{pages}{204--209}.
+\newblock \DOIprefix\doi{10.1214/aoms/1177731915}.
+%Type = Book
+\bibitem[{Maxwell et~al.(2017)Maxwell, Delaney and
+  Kelley}]{maxwell_designing_2017}
+\bibinfo{author}{Maxwell, S.E.}, \bibinfo{author}{Delaney, H.D.},
+  \bibinfo{author}{Kelley, K.}, \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Designing experiments and analyzing data: {A} model
+  comparison perspective}.
+\newblock \bibinfo{edition}{3} ed., \bibinfo{publisher}{Routledge},
+  \bibinfo{address}{New York, NY}.
+\newblock \DOIprefix\doi{10.4324/9781315642956}.
+%Type = Article
+\bibitem[{McCulloch and Neuhaus(2011)}]{mcculloch_misspecifying_2011}
+\bibinfo{author}{McCulloch, C.E.}, \bibinfo{author}{Neuhaus, J.M.},
+  \bibinfo{year}{2011}.
+\newblock \bibinfo{title}{Misspecifying the shape of a random effects
+  distribution: {Why} getting {It} wrong may not matter}.
+\newblock \bibinfo{journal}{Statistical Science} \bibinfo{volume}{26},
+  \bibinfo{pages}{388--402}.
+\newblock \DOIprefix\doi{10.1214/11-STS361}.
+%Type = Book
+\bibitem[{Meier(2022)}]{meier_anova_2022}
+\bibinfo{author}{Meier, L.}, \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{{ANOVA} and mixed models: {A} short introduction
+  using {R}}.
+\newblock \bibinfo{publisher}{Chapman and Hall}, \bibinfo{address}{New York,
+  NY}.
+\newblock \DOIprefix\doi{10.1201/9781003146216}.
+%Type = Misc
+\bibitem[{Millard(2024)}]{millard_envstats_2024}
+\bibinfo{author}{Millard, S.P.}, \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{{EnvStats}: {Package} for environmental statistics,
+  including {US} {EPA} guidance}.
+\newblock \URLprefix \url{https://cran.r-project.org/package=EnvStats}.
+%Type = Article
+\bibitem[{Miller and Schwarz(2018)}]{miller_implications_2018}
+\bibinfo{author}{Miller, J.}, \bibinfo{author}{Schwarz, W.},
+  \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Implications of individual differences in on-average
+  null effects}.
+\newblock \bibinfo{journal}{Journal of Experimental Psychology: General}
+  \bibinfo{volume}{147}, \bibinfo{pages}{377--397}.
+\newblock \DOIprefix\doi{10.1037/xge0000367}.
+%Type = Book
+\bibitem[{Montgomery(2020)}]{montgomery_design_2020}
+\bibinfo{author}{Montgomery, D.C.}, \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Design and analysis of experiments}.
+\newblock \bibinfo{edition}{10} ed., \bibinfo{publisher}{Wiley},
+  \bibinfo{address}{Hoboken, NJ}.
+%Type = Misc
+\bibitem[{Morey and Rouder(2024)}]{morey_bayesfactor_2024}
+\bibinfo{author}{Morey, R.D.}, \bibinfo{author}{Rouder, J.N.},
+  \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{{BayesFactor}: {Computation} of {Bayes} factors for
+  common designs}.
+\newblock \URLprefix \url{https://cran.r-project.org/package=BayesFactor}.
+%Type = Book
+\bibitem[{Myers(1979)}]{myers_fundamentals_1979}
+\bibinfo{author}{Myers, J.L.}, \bibinfo{year}{1979}.
+\newblock \bibinfo{title}{Fundamentals of experimental design}.
+\newblock \bibinfo{edition}{3} ed., \bibinfo{publisher}{Allyn and Bacon},
+  \bibinfo{address}{Boston, MA}.
+%Type = Article
+\bibitem[{Nathoo and Masson(2016)}]{nathoo_bayesian_2016}
+\bibinfo{author}{Nathoo, F.S.}, \bibinfo{author}{Masson, M.E.J.},
+  \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{Bayesian alternatives to null-hypothesis significance
+  testing for repeated-measures designs}.
+\newblock \bibinfo{journal}{Journal of Mathematical Psychology}
+  \bibinfo{volume}{72}, \bibinfo{pages}{144--157}.
+\newblock \DOIprefix\doi{10.1016/j.jmp.2015.03.003}.
+%Type = Article
+\bibitem[{Oberauer(2022)}]{oberauer_importance_2022}
+\bibinfo{author}{Oberauer, K.}, \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{The importance of random slopes in mixed models for
+  {Bayesian} hypothesis testing}.
+\newblock \bibinfo{journal}{Psychological Science} \bibinfo{volume}{33},
+  \bibinfo{pages}{648--665}.
+\newblock \DOIprefix\doi{10.1177/09567976211046884}.
+%Type = Book
+\bibitem[{Pinheiro and Bates(2000)}]{pinheiro_mixed-effects_2000}
+\bibinfo{author}{Pinheiro, J.C.}, \bibinfo{author}{Bates, D.M.},
+  \bibinfo{year}{2000}.
+\newblock \bibinfo{title}{Mixed-effects models in {S} and {S}-{PLUS}}.
+\newblock \bibinfo{publisher}{Springer}, \bibinfo{address}{New York, NY}.
+\newblock \DOIprefix\doi{10.1007/b98882}.
+%Type = Article
+\bibitem[{Raftery(1995)}]{raftery_bayesian_1995}
+\bibinfo{author}{Raftery, A.E.}, \bibinfo{year}{1995}.
+\newblock \bibinfo{title}{Bayesian model selection in social research}.
+\newblock \bibinfo{journal}{Sociological Methodology} \bibinfo{volume}{25},
+  \bibinfo{pages}{111--163}.
+\newblock \DOIprefix\doi{10.2307/271063}.
+%Type = Inproceedings
+\bibitem[{Robins(2000)}]{robins_marginal_2000}
+\bibinfo{author}{Robins, J.M.}, \bibinfo{year}{2000}.
+\newblock \bibinfo{title}{Marginal structural models versus structural nested
+  models as tools for causal inference}, pp. \bibinfo{pages}{95--133}.
+\newblock \DOIprefix\doi{10.1007/978-1-4612-1284-3_2}.
+%Type = Article
+\bibitem[{Rouanet and Lépine(1970)}]{rouanet_comparison_1970}
+\bibinfo{author}{Rouanet, H.}, \bibinfo{author}{Lépine, D.},
+  \bibinfo{year}{1970}.
+\newblock \bibinfo{title}{Comparison between treatments in a
+  repeated‐measurement design: {ANOVA} and multivariate methods}.
+\newblock \bibinfo{journal}{British Journal of Mathematical and Statistical
+  Psychology} \bibinfo{volume}{23}, \bibinfo{pages}{147--163}.
+\newblock \DOIprefix\doi{10.1111/j.2044-8317.1970.tb00440.x}.
+%Type = Article
+\bibitem[{Rouder et~al.(2012)Rouder, Morey, Speckman and
+  Province}]{rouder_default_2012}
+\bibinfo{author}{Rouder, J.N.}, \bibinfo{author}{Morey, R.D.},
+  \bibinfo{author}{Speckman, P.L.}, \bibinfo{author}{Province, J.M.},
+  \bibinfo{year}{2012}.
+\newblock \bibinfo{title}{Default {Bayes} factors for {ANOVA} designs}.
+\newblock \bibinfo{journal}{Journal of Mathematical Psychology}
+  \bibinfo{volume}{56}, \bibinfo{pages}{356--374}.
+\newblock \DOIprefix\doi{10.1016/j.jmp.2012.08.001}.
+%Type = Article
+\bibitem[{Rouder et~al.(2017)Rouder, Morey, Verhagen, Swagman and
+  Wagenmakers}]{rouder_bayesian_2017}
+\bibinfo{author}{Rouder, J.N.}, \bibinfo{author}{Morey, R.D.},
+  \bibinfo{author}{Verhagen, J.}, \bibinfo{author}{Swagman, A.R.},
+  \bibinfo{author}{Wagenmakers, E.J.}, \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Bayesian analysis of factorial designs.}
+\newblock \bibinfo{journal}{Psychological Methods} \bibinfo{volume}{22},
+  \bibinfo{pages}{304--321}.
+\newblock \DOIprefix\doi{10.1037/met0000057}.
+%Type = Article
+\bibitem[{Rouder et~al.(2023)Rouder, Schnuerch, Haaf and
+  Morey}]{rouder_principles_2023}
+\bibinfo{author}{Rouder, J.N.}, \bibinfo{author}{Schnuerch, M.},
+  \bibinfo{author}{Haaf, J.M.}, \bibinfo{author}{Morey, R.D.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Principles of model specification in {ANOVA}
+  designs}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{50--63}.
+\newblock \DOIprefix\doi{10.1007/s42113-022-00132-7}.
+%Type = Article
+\bibitem[{Rouder et~al.(2009)Rouder, Speckman, Sun, Morey and
+  Iverson}]{rouder_bayesian_2009}
+\bibinfo{author}{Rouder, J.N.}, \bibinfo{author}{Speckman, P.L.},
+  \bibinfo{author}{Sun, D.}, \bibinfo{author}{Morey, R.D.},
+  \bibinfo{author}{Iverson, G.}, \bibinfo{year}{2009}.
+\newblock \bibinfo{title}{Bayesian t tests for accepting and rejecting the null
+  hypothesis}.
+\newblock \bibinfo{journal}{Psychonomic Bulletin \& Review}
+  \bibinfo{volume}{16}, \bibinfo{pages}{225--237}.
+\newblock \DOIprefix\doi{10.3758/PBR.16.2.225}.
+%Type = Inproceedings
+\bibitem[{Rubner et~al.(1998)Rubner, Tomasi and Guibas}]{rubner_metric_1998}
+\bibinfo{author}{Rubner, Y.}, \bibinfo{author}{Tomasi, C.},
+  \bibinfo{author}{Guibas, L.J.}, \bibinfo{year}{1998}.
+\newblock \bibinfo{title}{A metric for distributions with applications to image
+  databases}, in: \bibinfo{booktitle}{Sixth {International} {Conference} on
+  {Computer} {Vision}}, \bibinfo{publisher}{IEEE}, \bibinfo{address}{Bombay,
+  India}. pp. \bibinfo{pages}{59--66}.
+\newblock \DOIprefix\doi{10.1109/ICCV.1998.710701}.
+%Type = Article
+\bibitem[{Schielzeth et~al.(2020)Schielzeth, Dingemanse, Nakagawa, Westneat,
+  Allegue, Teplitsky, Réale, Dochtermann, Garamszegi and
+  Araya-Ajoy}]{schielzeth_robustness_2020}
+\bibinfo{author}{Schielzeth, H.}, \bibinfo{author}{Dingemanse, N.J.},
+  \bibinfo{author}{Nakagawa, S.}, \bibinfo{author}{Westneat, D.F.},
+  \bibinfo{author}{Allegue, H.}, \bibinfo{author}{Teplitsky, C.},
+  \bibinfo{author}{Réale, D.}, \bibinfo{author}{Dochtermann, N.A.},
+  \bibinfo{author}{Garamszegi, L.Z.}, \bibinfo{author}{Araya-Ajoy, Y.G.},
+  \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Robustness of linear mixed-effects models to
+  violations of distributional assumptions}.
+\newblock \bibinfo{journal}{Methods in Ecology and Evolution}
+  \bibinfo{volume}{11}, \bibinfo{pages}{1141--1152}.
+\newblock \DOIprefix\doi{10.1111/2041-210X.13434}.
+%Type = Misc
+\bibitem[{Schuhmacher et~al.(2024)Schuhmacher, Bähre, Bonneel, Gottschlich,
+  Hartmann, Heinemann, Schmitzer and Schrieber}]{schuhmacher_transport_2024}
+\bibinfo{author}{Schuhmacher, D.}, \bibinfo{author}{Bähre, B.},
+  \bibinfo{author}{Bonneel, N.}, \bibinfo{author}{Gottschlich, C.},
+  \bibinfo{author}{Hartmann, V.}, \bibinfo{author}{Heinemann, F.},
+  \bibinfo{author}{Schmitzer, B.}, \bibinfo{author}{Schrieber, J.},
+  \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{transport: {Computation} of optimal transport plans
+  and {Wasserstein} distances}.
+\newblock \URLprefix \url{https://cran.r-project.org/package=transport}.
+%Type = Book
+\bibitem[{Searle(1997)}]{searle_linear_1997}
+\bibinfo{author}{Searle, S.R.}, \bibinfo{year}{1997}.
+\newblock \bibinfo{title}{Linear models}.
+\newblock \bibinfo{publisher}{John Wiley \& Sons}, \bibinfo{address}{New York,
+  NY}.
+\newblock \DOIprefix\doi{10.1002/9781118491782}.
+%Type = Article
+\bibitem[{Self and Liang(1987)}]{self_asymptotic_1987}
+\bibinfo{author}{Self, S.G.}, \bibinfo{author}{Liang, K.Y.},
+  \bibinfo{year}{1987}.
+\newblock \bibinfo{title}{Asymptotic properties of maximum likelihood
+  estimators and likelihood ratio tests under nonstandard conditions}.
+\newblock \bibinfo{journal}{Journal of the American Statistical Association}
+  \bibinfo{volume}{82}, \bibinfo{pages}{605--610}.
+\newblock \DOIprefix\doi{10.1080/01621459.1987.10478472}.
+%Type = Article
+\bibitem[{Shang and Zhou(2022)}]{shang_spatially_2022}
+\bibinfo{author}{Shang, L.}, \bibinfo{author}{Zhou, X.}, \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Spatially aware dimension reduction for spatial
+  transcriptomics}.
+\newblock \bibinfo{journal}{Nature Communications} \bibinfo{volume}{13},
+  \bibinfo{pages}{1--22}.
+\newblock \DOIprefix\doi{10.1038/s41467-022-34879-1}.
+%Type = Article
+\bibitem[{Singmann et~al.(2023)Singmann, Kellen, Cox, Chandramouli,
+  Davis-Stober, Dunn, Gronau, Kalish, McMullin, Navarro and
+  Shiffrin}]{singmann_statistics_2023}
+\bibinfo{author}{Singmann, H.}, \bibinfo{author}{Kellen, D.},
+  \bibinfo{author}{Cox, G.E.}, \bibinfo{author}{Chandramouli, S.H.},
+  \bibinfo{author}{Davis-Stober, C.P.}, \bibinfo{author}{Dunn, J.C.},
+  \bibinfo{author}{Gronau, Q.F.}, \bibinfo{author}{Kalish, M.L.},
+  \bibinfo{author}{McMullin, S.D.}, \bibinfo{author}{Navarro, D.J.},
+  \bibinfo{author}{Shiffrin, R.M.}, \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Statistics in the service of science: {Don}’t let
+  the tail wag the dog}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{64--83}.
+\newblock \DOIprefix\doi{10.1007/s42113-022-00129-2}.
+%Type = Article
+\bibitem[{Stram and Lee(1994)}]{stram_variance_1994}
+\bibinfo{author}{Stram, D.O.}, \bibinfo{author}{Lee, J.W.},
+  \bibinfo{year}{1994}.
+\newblock \bibinfo{title}{Variance components testing in the longitudinal mixed
+  effects model}.
+\newblock \bibinfo{journal}{Biometrics} \bibinfo{volume}{50},
+  \bibinfo{pages}{1171--1177}.
+\newblock \DOIprefix\doi{10.2307/2533455}.
+%Type = Article
+\bibitem[{Stroop(1935)}]{stroop_studies_1935}
+\bibinfo{author}{Stroop, J.R.}, \bibinfo{year}{1935}.
+\newblock \bibinfo{title}{Studies of interference in serial verbal reactions}.
+\newblock \bibinfo{journal}{Journal of Experimental Psychology}
+  \bibinfo{volume}{18}, \bibinfo{pages}{643--662}.
+\newblock \DOIprefix\doi{10.1037/h0054651}.
+%Type = Article
+\bibitem[{Toyama et~al.(2019)Toyama, Katahira and Ohira}]{toyama_biases_2019}
+\bibinfo{author}{Toyama, A.}, \bibinfo{author}{Katahira, K.},
+  \bibinfo{author}{Ohira, H.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Biases in estimating the balance between model-free
+  and model-based learning systems due to model misspecification}.
+\newblock \bibinfo{journal}{Journal of Mathematical Psychology}
+  \bibinfo{volume}{91}, \bibinfo{pages}{88--102}.
+\newblock \DOIprefix\doi{10.1016/j.jmp.2019.03.007}.
+%Type = Article
+\bibitem[{Vaserstein(1969)}]{vaserstein_markov_1969}
+\bibinfo{author}{Vaserstein, L.N.}, \bibinfo{year}{1969}.
+\newblock \bibinfo{title}{Markov processes over denumerable products of spaces,
+  describing large systems of automata}.
+\newblock \bibinfo{journal}{Problemy Peredachi Informatsii}
+  \bibinfo{volume}{5}, \bibinfo{pages}{64--72}.
+\newblock \URLprefix \url{https://www.mathnet.ru/eng/ppi1811}.
+%Type = Article
+\bibitem[{Vasishth et~al.(2023)Vasishth, Yadav, Schad and
+  Nicenboim}]{vasishth_sample_2023}
+\bibinfo{author}{Vasishth, S.}, \bibinfo{author}{Yadav, H.},
+  \bibinfo{author}{Schad, D.J.}, \bibinfo{author}{Nicenboim, B.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Sample size determination for {Bayesian} hierarchical
+  models commonly used in psycholinguistics}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{102--126}.
+\newblock \DOIprefix\doi{10.1007/s42113-021-00125-y}.
+%Type = Article
+\bibitem[{Verbeke and Lesaffre(1997)}]{verbeke_effect_1997}
+\bibinfo{author}{Verbeke, G.}, \bibinfo{author}{Lesaffre, E.},
+  \bibinfo{year}{1997}.
+\newblock \bibinfo{title}{The effect of misspecifying the random-effects
+  distribution in linear mixed models for longitudinal data}.
+\newblock \bibinfo{journal}{Computational Statistics \& Data Analysis}
+  \bibinfo{volume}{23}, \bibinfo{pages}{541--556}.
+\newblock \DOIprefix\doi{10.1016/S0167-9473(96)00047-3}.
+%Type = Book
+\bibitem[{Verma(2015)}]{verma_repeated_2015}
+\bibinfo{author}{Verma, J.P.}, \bibinfo{year}{2015}.
+\newblock \bibinfo{title}{Repeated measures design for empirical researchers}.
+\newblock \bibinfo{publisher}{John Wiley \& Sons}, \bibinfo{address}{Hoboken,
+  NJ}.
+%Type = Article
+\bibitem[{Veríssimo(2023)}]{verissimo_when_2023}
+\bibinfo{author}{Veríssimo, J.}, \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{When fixed and random effects mismatch: {Another}
+  case of inflation of evidence in non-maximal models}.
+\newblock \bibinfo{journal}{Computational Brain \& Behavior}
+  \bibinfo{volume}{6}, \bibinfo{pages}{84--101}.
+\newblock \DOIprefix\doi{10.1007/s42113-022-00152-3}.
+%Type = Article
+\bibitem[{Wagenmakers and Ly(2023)}]{wagenmakers_history_2023}
+\bibinfo{author}{Wagenmakers, E.J.}, \bibinfo{author}{Ly, A.},
+  \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{History and nature of the {Jeffreys}–{Lindley}
+  paradox}.
+\newblock \bibinfo{journal}{Archive for History of Exact Sciences}
+  \bibinfo{volume}{77}, \bibinfo{pages}{25--72}.
+\newblock \DOIprefix\doi{10.1007/s00407-022-00298-3}.
+%Type = Article
+\bibitem[{Wei et~al.(2023)Wei, Nathoo and Masson}]{wei_investigating_2023}
+\bibinfo{author}{Wei, Z.}, \bibinfo{author}{Nathoo, F.S.},
+  \bibinfo{author}{Masson, M.E.J.}, \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Investigating the relationship between the {Bayes}
+  factor and the separation of credible intervals}.
+\newblock \bibinfo{journal}{Psychonomic Bulletin \& Review}
+  \bibinfo{volume}{30}, \bibinfo{pages}{1759--1781}.
+\newblock \DOIprefix\doi{10.3758/s13423-023-02295-1}.
+%Type = Article
+\bibitem[{Wetzels et~al.(2011)Wetzels, Matzke, Lee, Rouder, Iverson and
+  Wagenmakers}]{wetzels_statistical_2011}
+\bibinfo{author}{Wetzels, R.}, \bibinfo{author}{Matzke, D.},
+  \bibinfo{author}{Lee, M.D.}, \bibinfo{author}{Rouder, J.N.},
+  \bibinfo{author}{Iverson, G.J.}, \bibinfo{author}{Wagenmakers, E.J.},
+  \bibinfo{year}{2011}.
+\newblock \bibinfo{title}{Statistical evidence in experimental psychology: {An}
+  empirical comparison using 855 t tests}.
+\newblock \bibinfo{journal}{Perspectives on Psychological Science}
+  \bibinfo{volume}{6}, \bibinfo{pages}{291--298}.
+\newblock \DOIprefix\doi{10.1177/1745691611406923}.
+%Type = Article
+\bibitem[{White(1982)}]{white_maximum_1982}
+\bibinfo{author}{White, H.}, \bibinfo{year}{1982}.
+\newblock \bibinfo{title}{Maximum likelihood estimation of misspecified
+  models}.
+\newblock \bibinfo{journal}{Econometrica} \bibinfo{volume}{50},
+  \bibinfo{pages}{1--25}.
+\newblock \DOIprefix\doi{10.2307/1912526}.
+%Type = Misc
+\bibitem[{Wuertz et~al.(2024)Wuertz, Chalabi, Setz, Maechler and
+  Boshnakov}]{wuertz_fgarch_2024}
+\bibinfo{author}{Wuertz, D.}, \bibinfo{author}{Chalabi, Y.},
+  \bibinfo{author}{Setz, T.}, \bibinfo{author}{Maechler, M.},
+  \bibinfo{author}{Boshnakov, G.N.}, \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{{fGarch}: {Rmetrics} - autoregressive conditional
+  heteroskedastic modelling}.
+\newblock \URLprefix \url{https://cran.r-project.org/package=fGarch}.
+%Type = Article
+\bibitem[{Zellner and Siow(1980)}]{zellner_posterior_1980}
+\bibinfo{author}{Zellner, A.}, \bibinfo{author}{Siow, A.},
+  \bibinfo{year}{1980}.
+\newblock \bibinfo{title}{Posterior odds ratios for selected regression
+  hypotheses}.
+\newblock \bibinfo{journal}{Trabajos de Estadistica Y de Investigacion
+  Operativa} \bibinfo{volume}{31}, \bibinfo{pages}{585--603}.
+\newblock \DOIprefix\doi{10.1007/BF02888369}.
+%Type = Article
+\bibitem[{Zhang(2021)}]{zhang_note_2021}
+\bibinfo{author}{Zhang, Z.}, \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{A note on {Wishart} and inverse {Wishart} priors for
+  covariance matrix}.
+\newblock \bibinfo{journal}{Journal of Behavioral Data Science}
+  \bibinfo{volume}{1}, \bibinfo{pages}{119--126}.
+\newblock \DOIprefix\doi{10.35566/jbds/v1n2/p2}.
+
+\end{thebibliography}
